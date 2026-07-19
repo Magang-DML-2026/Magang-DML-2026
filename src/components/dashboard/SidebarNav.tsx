@@ -19,7 +19,7 @@ export default function SidebarNav() {
 
   const links = [
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-    { name: "Katalog", href: "/products", icon: ShoppingBag },
+    { name: "Katalog", href: "/dashboard/katalog", icon: ShoppingBag },
     { name: "Keranjang", href: "/dashboard/cart", icon: ShoppingCart },
     { name: "Order History", href: "/dashboard/transactions", icon: History },
     { name: "Pengajuan Komplain", href: "/dashboard/complaints", icon: AlertTriangle },
