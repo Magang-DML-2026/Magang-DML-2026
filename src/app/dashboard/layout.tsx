@@ -2,15 +2,8 @@ import { getSession } from "@/lib/session";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
-import {
-  LayoutDashboard,
-  History,
-  AlertTriangle,
-  Receipt,
-  HelpCircle,
-  Settings,
-  User,
-} from "lucide-react";
+import SidebarNav from "@/components/dashboard/SidebarNav";
+import { User } from "lucide-react";
 
 export default async function DashboardLayout({
   children,
@@ -45,55 +38,7 @@ export default async function DashboardLayout({
           </div>
 
           {/* Navigation Links */}
-          <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
-            <Link
-              href="/dashboard"
-              className="flex items-center gap-3 px-4 py-3 rounded-lg bg-[#cc4224] text-white text-sm font-medium"
-            >
-              <LayoutDashboard className="w-4 h-4" />
-              Dashboard
-            </Link>
-            
-            <Link
-              href="#"
-              className="flex items-center gap-3 px-4 py-3 rounded-lg text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900 text-sm font-medium transition-colors"
-            >
-              <History className="w-4 h-4" />
-              Order History
-            </Link>
-            
-            <Link
-              href="/dashboard/complaints"
-              className="flex items-center gap-3 px-4 py-3 rounded-lg text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900 text-sm font-medium transition-colors"
-            >
-              <AlertTriangle className="w-4 h-4" />
-              Pengajuan Komplain
-            </Link>
-            
-            <Link
-              href="#"
-              className="flex items-center gap-3 px-4 py-3 rounded-lg text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900 text-sm font-medium transition-colors"
-            >
-              <Receipt className="w-4 h-4" />
-              Invoices
-            </Link>
-            
-            <Link
-              href="#"
-              className="flex items-center gap-3 px-4 py-3 rounded-lg text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900 text-sm font-medium transition-colors"
-            >
-              <HelpCircle className="w-4 h-4" />
-              Support
-            </Link>
-            
-            <Link
-              href="/dashboard/profile"
-              className="flex items-center gap-3 px-4 py-3 rounded-lg text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900 text-sm font-medium transition-colors"
-            >
-              <Settings className="w-4 h-4" />
-              Setting
-            </Link>
-          </nav>
+          <SidebarNav />
         </aside>
 
         {/* Main Content Area */}
