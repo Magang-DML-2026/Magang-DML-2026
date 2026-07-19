@@ -2,10 +2,27 @@ import { getSession } from "@/lib/session";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { CheckCircle2, ChevronRight, FileText, Search, Package, MapPin } from "lucide-react";
+import { db } from "@/db";
+import { transactions, transactionItems } from "@/db/schema";
+import { eq } from "drizzle-orm";
 
-export default async function CheckoutSuccessPage() {
+export default async function CheckoutSuccessPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ txId?: string }>;
+}) {
   const session = await getSession();
   if (!session) redirect("/login");
+
+  const resolvedParams = await searchParams;
+  const txId = resolvedParams.txId;
+  if (!txId) redirect("/dashboard/cart");
+
+  const txList = await db.select().from(transactions).where(eq(transactions.id, txId)).limit(1);
+  if (txList.length === 0) redirect("/dashboard");
+  const tx = txList[0];
+
+  const items = await db.select().from(transactionItems).where(eq(transactionItems.transactionId, txId));
 
   return (
     <div className="p-8 max-w-[1000px] mx-auto font-sans bg-[#F9FAFB] min-h-screen">
@@ -34,15 +51,15 @@ export default async function CheckoutSuccessPage() {
            <div className="w-full bg-zinc-50 border border-zinc-200 rounded-xl p-6 mb-8 text-left space-y-4">
               <div className="flex justify-between items-center border-b border-zinc-200 pb-3">
                 <span className="text-[12px] font-bold uppercase tracking-wider text-zinc-500">Nomor Pesanan</span>
-                <span className="text-[14px] font-bold text-zinc-900">#98332</span>
+                <span className="text-[14px] font-bold text-zinc-900">{tx.id}</span>
               </div>
               <div className="flex justify-between items-center border-b border-zinc-200 pb-3">
                 <span className="text-[12px] font-bold uppercase tracking-wider text-zinc-500">Waktu Pembayaran</span>
-                <span className="text-[14px] font-medium text-zinc-900">19 Okt 2026, 16:00 WIB</span>
+                <span className="text-[14px] font-medium text-zinc-900">{tx.paidAt ? tx.paidAt.toLocaleString("id-ID") : '-'}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-[12px] font-bold uppercase tracking-wider text-zinc-500">Total Dibayar</span>
-                <span className="text-[16px] font-bold text-[#cc4224]">Rp 57.000.000</span>
+                <span className="text-[16px] font-bold text-[#cc4224]">Rp {tx.totalAmount.toLocaleString("id-ID")}</span>
               </div>
            </div>
            
@@ -89,7 +106,9 @@ export default async function CheckoutSuccessPage() {
                  <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5 shrink-0 animate-pulse"></div>
                  <div>
                    <h3 className="text-[13px] font-bold text-blue-900 mb-1">Pesanan sedang dipersiapkan</h3>
-                   <p className="text-[12px] text-blue-700 leading-relaxed">Pabrik kami sedang mengemas pesanan Anda (EPDM Rubber Seals - 5.000 Pcs) untuk diserahkan kepada pihak Kargo Darat (LTL).</p>
+                   <p className="text-[12px] text-blue-700 leading-relaxed">
+                      Pabrik kami sedang mengemas pesanan Anda ({items.length} macam barang) untuk diserahkan kepada pihak {tx.shippingMethod}.
+                   </p>
                  </div>
               </div>
            </div>
@@ -97,11 +116,11 @@ export default async function CheckoutSuccessPage() {
            <div className="bg-white rounded-xl border border-zinc-200 p-6 shadow-sm flex items-center gap-4">
               <div className="w-16 h-16 bg-[url('https://images.unsplash.com/photo-1621252179022-297eb0981e64?q=80&w=200&auto=format&fit=crop')] bg-cover bg-center rounded-lg border border-zinc-200 opacity-80 mix-blend-multiply shrink-0"></div>
               <div className="flex-1">
-                 <p className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 mb-1">Ringkasan Item</p>
-                 <h3 className="text-[15px] font-bold text-zinc-900">EPDM Rubber Seals</h3>
-                 <p className="text-[12px] text-zinc-500 mt-0.5">5.000 Pcs • Injection Molding</p>
+                 <p className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 mb-1">Total {items.reduce((acc, item) => acc + item.quantity, 0).toLocaleString("id-ID")} Items</p>
+                 <h3 className="text-[15px] font-bold text-zinc-900">{items[0]?.productName || 'Produk'} {items.length > 1 ? `dan ${items.length - 1} lainnya` : ''}</h3>
+                 <p className="text-[12px] text-zinc-500 mt-0.5">Rp {tx.totalAmount.toLocaleString("id-ID")}</p>
               </div>
-              <Link href="/dashboard/transactions/98332" className="px-4 py-2 bg-white border border-zinc-200 text-zinc-700 text-[12px] font-bold rounded-lg hover:bg-zinc-50 transition-colors">
+              <Link href={`/dashboard/transactions/${tx.id}/tracking`} className="px-4 py-2 bg-white border border-zinc-200 text-zinc-700 text-[12px] font-bold rounded-lg hover:bg-zinc-50 transition-colors">
                 Lacak Pesanan
               </Link>
            </div>

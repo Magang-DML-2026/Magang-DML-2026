@@ -2,11 +2,43 @@ import { getSession } from "@/lib/session";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Printer, Settings2, Download, ArrowLeft, ChevronDown, Check } from "lucide-react";
+import { db } from "@/db";
+import { transactions, transactionItems, addresses } from "@/db/schema";
+import { eq } from "drizzle-orm";
 
-export default async function InvoicePrintPreviewPage() {
+export default async function InvoicePrintPreviewPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ txId?: string }>;
+}) {
   const session = await getSession();
   if (!session) redirect("/login");
 
+  const resolvedParams = await searchParams;
+  const txId = resolvedParams.txId;
+  if (!txId) redirect("/dashboard/invoices");
+
+  const txList = await db.select().from(transactions).where(eq(transactions.id, txId)).limit(1);
+  if (txList.length === 0) redirect("/dashboard/invoices");
+  const tx = txList[0];
+
+  const items = await db.select().from(transactionItems).where(eq(transactionItems.transactionId, txId));
+
+  let deliveryAddress = null;
+  if (tx.addressId) {
+    const addrList = await db.select().from(addresses).where(eq(addresses.id, tx.addressId)).limit(1);
+    deliveryAddress = addrList[0];
+  } else {
+    // Fallback for old transactions before addressId was saved
+    const userAddresses = await db.select().from(addresses).where(eq(addresses.userId, tx.userId));
+    deliveryAddress = userAddresses.find(a => a.isDefault) || userAddresses[0];
+  }
+
+  // Date manipulation
+  const txDate = tx.createdAt ? new Date(tx.createdAt) : new Date();
+  const dueDate = new Date(txDate);
+  dueDate.setMonth(dueDate.getMonth() + 1); // Jatuh tempo 1 bulan
+  
   return (
     <div className="min-h-screen bg-zinc-800 font-sans flex flex-col md:flex-row">
       
@@ -64,9 +96,9 @@ export default async function InvoicePrintPreviewPage() {
             </div>
           </div>
           
-          <button className="flex items-center gap-2 text-[13px] font-bold text-[#cc4224] hover:underline">
+          <Link href="#" className="flex items-center gap-2 text-[13px] font-bold text-[#cc4224] hover:underline">
             <Settings2 className="w-4 h-4" /> Pengaturan Lainnya
-          </button>
+          </Link>
 
         </div>
 
@@ -90,7 +122,7 @@ export default async function InvoicePrintPreviewPage() {
            <div className="flex justify-between items-start border-b-2 border-zinc-800 pb-8 mb-8">
              <div>
                <h1 className="text-[32px] font-black text-zinc-900 tracking-tighter uppercase">INVOICE</h1>
-               <p className="text-[14px] text-zinc-500 font-medium tracking-widest mt-1">#INV-2026-004</p>
+               <p className="text-[14px] text-zinc-500 font-medium tracking-widest mt-1">#{tx.id}</p>
              </div>
              <div className="text-right">
                <h2 className="text-[18px] font-bold text-zinc-900">PT Duta Mitra Luhur</h2>
@@ -100,23 +132,35 @@ export default async function InvoicePrintPreviewPage() {
            
            {/* Info */}
            <div className="flex justify-between mb-12">
-             <div>
-               <p className="text-[12px] font-bold uppercase tracking-wider text-zinc-500 mb-2">Tagihan Kepada:</p>
-               <p className="text-[16px] font-bold text-zinc-900">{session.userName}</p>
-               <p className="text-[13px] text-zinc-600 mt-1 leading-relaxed">
-                 Perusahaan Klien B2B<br/>
-                 Jl. Sudirman Kav 45, Jakarta Pusat<br/>
-                 10220
-               </p>
-             </div>
+              <div>
+                <p className="text-[12px] font-bold uppercase tracking-wider text-zinc-500 mb-2">Tagihan Kepada:</p>
+                {deliveryAddress ? (
+                  <>
+                    <p className="text-[16px] font-bold text-zinc-900">{deliveryAddress.recipientName}</p>
+                    <p className="text-[13px] text-zinc-600 mt-1 leading-relaxed">
+                      {deliveryAddress.fullAddress}<br/>
+                      {deliveryAddress.district}, {deliveryAddress.city}<br/>
+                      {deliveryAddress.province} {deliveryAddress.postalCode}<br/>
+                      {deliveryAddress.phone}
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-[16px] font-bold text-zinc-900">{session.userName}</p>
+                    <p className="text-[13px] text-zinc-600 mt-1 leading-relaxed">
+                      Alamat tidak tersedia
+                    </p>
+                  </>
+                )}
+              </div>
              <div className="text-right">
                <div className="mb-4">
                  <p className="text-[12px] font-bold uppercase tracking-wider text-zinc-500 mb-1">Tanggal Invoice</p>
-                 <p className="text-[14px] font-bold text-zinc-900">18 Oktober 2026</p>
+                 <p className="text-[14px] font-bold text-zinc-900">{txDate.toLocaleDateString("id-ID", { year: 'numeric', month: 'long', day: 'numeric' })}</p>
                </div>
                <div>
                  <p className="text-[12px] font-bold uppercase tracking-wider text-zinc-500 mb-1">Jatuh Tempo</p>
-                 <p className="text-[14px] font-bold text-[#cc4224]">18 November 2026</p>
+                 <p className="text-[14px] font-bold text-[#cc4224]">{dueDate.toLocaleDateString("id-ID", { year: 'numeric', month: 'long', day: 'numeric' })}</p>
                </div>
              </div>
            </div>
@@ -132,23 +176,23 @@ export default async function InvoicePrintPreviewPage() {
                </tr>
              </thead>
              <tbody>
+               {items.map(item => (
+                 <tr key={item.id} className="border-b border-zinc-200">
+                   <td className="py-6">
+                     <p className="text-[14px] font-bold text-zinc-900">{item.productName}</p>
+                   </td>
+                   <td className="py-6 text-[14px] text-zinc-900 text-center font-medium">{item.quantity.toLocaleString("id-ID")} Pcs</td>
+                   <td className="py-6 text-[14px] text-zinc-900 text-right font-medium">Rp {item.priceAtPurchase.toLocaleString("id-ID")}</td>
+                   <td className="py-6 text-[14px] font-bold text-zinc-900 text-right">Rp {(item.priceAtPurchase * item.quantity).toLocaleString("id-ID")}</td>
+                 </tr>
+               ))}
                <tr className="border-b border-zinc-200">
                  <td className="py-6">
-                   <p className="text-[14px] font-bold text-zinc-900">EPDM Rubber Seals</p>
-                   <p className="text-[12px] text-zinc-500 mt-1">Material: EPDM 70 ShA, Proses: Injection Molding</p>
-                 </td>
-                 <td className="py-6 text-[14px] text-zinc-900 text-center font-medium">5,000 Pcs</td>
-                 <td className="py-6 text-[14px] text-zinc-900 text-right font-medium">Rp 10.000</td>
-                 <td className="py-6 text-[14px] font-bold text-zinc-900 text-right">Rp 50.000.000</td>
-               </tr>
-               <tr className="border-b border-zinc-200">
-                 <td className="py-6">
-                   <p className="text-[14px] font-bold text-zinc-900">Biaya Pengiriman (LTL)</p>
-                   <p className="text-[12px] text-zinc-500 mt-1">Kargo Darat - Estimasi 2-3 Hari</p>
+                   <p className="text-[14px] font-bold text-zinc-900">Biaya Pengiriman ({tx.shippingMethod || 'LTL'})</p>
                  </td>
                  <td className="py-6 text-[14px] text-zinc-900 text-center font-medium">1 Lumpsum</td>
-                 <td className="py-6 text-[14px] text-zinc-900 text-right font-medium">Rp 1.500.000</td>
-                 <td className="py-6 text-[14px] font-bold text-zinc-900 text-right">Rp 1.500.000</td>
+                 <td className="py-6 text-[14px] text-zinc-900 text-right font-medium">Rp {tx.shippingCost.toLocaleString("id-ID")}</td>
+                 <td className="py-6 text-[14px] font-bold text-zinc-900 text-right">Rp {tx.shippingCost.toLocaleString("id-ID")}</td>
                </tr>
              </tbody>
            </table>
@@ -158,15 +202,15 @@ export default async function InvoicePrintPreviewPage() {
              <div className="w-1/2 max-w-[300px]">
                <div className="flex justify-between py-2 text-[13px]">
                  <span className="text-zinc-600">Subtotal</span>
-                 <span className="font-bold text-zinc-900">Rp 51.500.000</span>
+                 <span className="font-bold text-zinc-900">Rp {tx.subtotal.toLocaleString("id-ID")}</span>
                </div>
                <div className="flex justify-between py-2 text-[13px] border-b border-zinc-200 mb-2">
                  <span className="text-zinc-600">PPN (11%)</span>
-                 <span className="font-bold text-zinc-900">Rp 5.500.000</span>
+                 <span className="font-bold text-zinc-900">Rp {tx.taxAmount.toLocaleString("id-ID")}</span>
                </div>
                <div className="flex justify-between py-3">
                  <span className="text-[16px] font-black text-zinc-900 uppercase">Total Tagihan</span>
-                 <span className="text-[18px] font-black text-[#cc4224]">Rp 57.000.000</span>
+                 <span className="text-[18px] font-black text-[#cc4224]">Rp {tx.totalAmount.toLocaleString("id-ID")}</span>
                </div>
              </div>
            </div>

@@ -2,10 +2,33 @@ import { getSession } from "@/lib/session";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Download, CreditCard, Receipt, TrendingUp, AlertCircle, Search, Filter } from "lucide-react";
+import { db } from "@/db";
+import { transactions } from "@/db/schema";
+import { eq, desc } from "drizzle-orm";
 
 export default async function InvoicesPage() {
   const session = await getSession();
   if (!session) redirect("/login");
+
+  const userId = session.userId as number;
+
+  const userTransactions = await db.select()
+    .from(transactions)
+    .where(eq(transactions.userId, userId))
+    .orderBy(desc(transactions.createdAt));
+
+  let totalInvoices = 0;
+  let paidAmount = 0;
+  let unpaidAmount = 0;
+
+  userTransactions.forEach(tx => {
+    totalInvoices += tx.totalAmount;
+    if (tx.status !== "Menunggu Pembayaran") {
+      paidAmount += tx.totalAmount;
+    } else {
+      unpaidAmount += tx.totalAmount;
+    }
+  });
 
   return (
     <div className="p-8 max-w-[1200px] mx-auto font-sans bg-[#F9FAFB] min-h-screen">
@@ -37,8 +60,8 @@ export default async function InvoicesPage() {
             <Receipt className="w-6 h-6" />
           </div>
           <div>
-            <p className="text-[13px] font-semibold text-zinc-500 mb-1">Total Invoice</p>
-            <p className="text-[24px] font-bold text-zinc-900">Rp 150.000.000</p>
+            <p className="text-[13px] font-semibold text-zinc-500 mb-1">Total Transaksi</p>
+            <p className="text-[24px] font-bold text-zinc-900">Rp {totalInvoices.toLocaleString("id-ID")}</p>
           </div>
         </div>
         <div className="bg-white p-6 rounded-xl border border-zinc-200 shadow-sm flex items-start gap-4">
@@ -46,8 +69,8 @@ export default async function InvoicesPage() {
             <TrendingUp className="w-6 h-6" />
           </div>
           <div>
-            <p className="text-[13px] font-semibold text-zinc-500 mb-1">Dibayar</p>
-            <p className="text-[24px] font-bold text-zinc-900">Rp 100.000.000</p>
+            <p className="text-[13px] font-semibold text-zinc-500 mb-1">Sudah Dibayar</p>
+            <p className="text-[24px] font-bold text-zinc-900">Rp {paidAmount.toLocaleString("id-ID")}</p>
           </div>
         </div>
         <div className="bg-white p-6 rounded-xl border border-zinc-200 shadow-sm flex items-start gap-4">
@@ -56,7 +79,7 @@ export default async function InvoicesPage() {
           </div>
           <div>
             <p className="text-[13px] font-semibold text-zinc-500 mb-1">Belum Dibayar</p>
-            <p className="text-[24px] font-bold text-[#cc4224]">Rp 50.000.000</p>
+            <p className="text-[24px] font-bold text-[#cc4224]">Rp {unpaidAmount.toLocaleString("id-ID")}</p>
           </div>
         </div>
       </div>
@@ -75,65 +98,50 @@ export default async function InvoicesPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-100">
-              {/* Row 1: Unpaid */}
-              <tr className="hover:bg-zinc-50/50 transition-colors">
-                <td className="px-6 py-5 text-[14px] font-semibold text-zinc-900">INV-2026-004</td>
-                <td className="px-6 py-5 text-[14px] text-zinc-600">18 Okt 2026</td>
-                <td className="px-6 py-5 text-[14px] font-medium text-zinc-900">Rp 50.000.000</td>
-                <td className="px-6 py-5">
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#fdf5f3] text-[#cc4224] text-[11px] font-bold">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#cc4224]"></span>
-                    Menunggu Pembayaran
-                  </span>
-                </td>
-                <td className="px-6 py-5 flex justify-end gap-3">
-                  <button className="p-2 text-zinc-400 hover:text-zinc-700 bg-white border border-zinc-200 rounded-lg transition-colors tooltip-trigger" title="Download">
-                    <Download className="w-4 h-4" />
-                  </button>
-                  <Link href="/dashboard/checkout" className="px-4 py-2 bg-[#cc4224] text-white text-[13px] font-bold rounded-lg hover:bg-[#b0351b] transition-colors flex items-center gap-2">
-                    <CreditCard className="w-4 h-4" />
-                    Bayar
-                  </Link>
-                </td>
-              </tr>
-              
-              {/* Row 2: Paid */}
-              <tr className="hover:bg-zinc-50/50 transition-colors">
-                <td className="px-6 py-5 text-[14px] font-semibold text-zinc-900">INV-2026-003</td>
-                <td className="px-6 py-5 text-[14px] text-zinc-600">10 Okt 2026</td>
-                <td className="px-6 py-5 text-[14px] font-medium text-zinc-900">Rp 45.000.000</td>
-                <td className="px-6 py-5">
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-bold">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                    Lunas
-                  </span>
-                </td>
-                <td className="px-6 py-5 flex justify-end gap-3">
-                  <button className="px-4 py-2 text-zinc-600 bg-white border border-zinc-200 hover:bg-zinc-50 text-[13px] font-bold rounded-lg transition-colors flex items-center gap-2">
-                    <Download className="w-4 h-4" />
-                    Invoice
-                  </button>
-                </td>
-              </tr>
-              
-              {/* Row 3: Paid */}
-              <tr className="hover:bg-zinc-50/50 transition-colors">
-                <td className="px-6 py-5 text-[14px] font-semibold text-zinc-900">INV-2026-002</td>
-                <td className="px-6 py-5 text-[14px] text-zinc-600">01 Sep 2026</td>
-                <td className="px-6 py-5 text-[14px] font-medium text-zinc-900">Rp 55.000.000</td>
-                <td className="px-6 py-5">
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-bold">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                    Lunas
-                  </span>
-                </td>
-                <td className="px-6 py-5 flex justify-end gap-3">
-                  <button className="px-4 py-2 text-zinc-600 bg-white border border-zinc-200 hover:bg-zinc-50 text-[13px] font-bold rounded-lg transition-colors flex items-center gap-2">
-                    <Download className="w-4 h-4" />
-                    Invoice
-                  </button>
-                </td>
-              </tr>
+              {userTransactions.length === 0 ? (
+                 <tr>
+                    <td colSpan={5} className="px-6 py-8 text-center text-[14px] text-zinc-500">
+                      Anda belum memiliki invoice.
+                    </td>
+                 </tr>
+              ) : (
+                userTransactions.map((tx) => {
+                  const isUnpaid = tx.status === "Menunggu Pembayaran";
+                  return (
+                    <tr key={tx.id} className="hover:bg-zinc-50/50 transition-colors">
+                      <td className="px-6 py-5 text-[14px] font-semibold text-zinc-900">{tx.id}</td>
+                      <td className="px-6 py-5 text-[14px] text-zinc-600">{tx.createdAt.toLocaleString("id-ID")}</td>
+                      <td className="px-6 py-5 text-[14px] font-medium text-zinc-900">Rp {tx.totalAmount.toLocaleString("id-ID")}</td>
+                      <td className="px-6 py-5">
+                        {isUnpaid ? (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#fdf5f3] text-[#cc4224] text-[11px] font-bold">
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#cc4224]"></span>
+                            Menunggu Pembayaran
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-bold">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                            Lunas
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-6 py-5 flex justify-end gap-3">
+                        {isUnpaid ? (
+                          <Link href={`/dashboard/checkout/payment?txId=${tx.id}`} className="px-4 py-2 bg-[#cc4224] text-white text-[13px] font-bold rounded-lg hover:bg-[#b0351b] transition-colors flex items-center gap-2">
+                            <CreditCard className="w-4 h-4" />
+                            Bayar
+                          </Link>
+                        ) : (
+                          <Link href={`/dashboard/invoices/preview?txId=${tx.id}`} className="px-4 py-2 text-zinc-600 bg-white border border-zinc-200 hover:bg-zinc-50 text-[13px] font-bold rounded-lg transition-colors flex items-center gap-2">
+                            <Download className="w-4 h-4" />
+                            Invoice
+                          </Link>
+                        )}
+                      </td>
+                    </tr>
+                  )
+                })
+              )}
             </tbody>
           </table>
         </div>

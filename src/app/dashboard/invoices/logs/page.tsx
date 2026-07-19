@@ -38,10 +38,10 @@ export default async function InvoiceLogsPage({
               className="pl-9 pr-4 py-2 bg-white border border-zinc-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#cc4224]/20 focus:border-[#cc4224] transition-all w-[250px]"
             />
           </div>
-          <button className="px-4 py-2 bg-white border border-zinc-200 text-zinc-700 text-sm font-medium rounded-lg hover:bg-zinc-50 flex items-center gap-2 transition-colors">
+          <Link href="#" className="px-4 py-2 bg-white border border-zinc-200 text-zinc-700 text-sm font-medium rounded-lg hover:bg-zinc-50 flex items-center gap-2 transition-colors">
             <Filter className="w-4 h-4" />
             Filter
-          </button>
+          </Link>
         </div>
         
         <Link href="?modal=date" scroll={false} className="px-4 py-2 bg-[#cc4224] text-white text-[13px] font-bold rounded-lg hover:bg-[#b0351b] transition-colors flex items-center gap-2 shadow-sm">

@@ -101,14 +101,14 @@ export default async function SupportPage() {
             </p>
             
             <div className="space-y-3">
-              <a href="#" className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-[#25D366] text-white font-bold text-[13px] rounded-lg hover:bg-[#20bd5a] transition-colors shadow-sm">
+              <Link href="#" className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-[#25D366] text-white font-bold text-[13px] rounded-lg hover:bg-[#20bd5a] transition-colors shadow-sm">
                 <MessageCircle className="w-4 h-4" />
                 Chat via WhatsApp
-              </a>
-              <a href="#" className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white border-2 border-zinc-200 text-zinc-700 font-bold text-[13px] rounded-lg hover:bg-zinc-50 hover:text-zinc-900 transition-colors">
+              </Link>
+              <Link href="#" className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white border-2 border-zinc-200 text-zinc-700 font-bold text-[13px] rounded-lg hover:bg-zinc-50 hover:text-zinc-900 transition-colors">
                 <Mail className="w-4 h-4" />
                 Kirim Email
-              </a>
+              </Link>
             </div>
             
             <p className="text-[11px] text-center text-zinc-400 mt-6">
