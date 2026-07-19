@@ -3,9 +3,22 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Search } from "lucide-react";
+import { Search, LogOut } from "lucide-react";
 
-export default function Navbar({ activeTab = "profile", showSearch = true }: { activeTab?: "profile" | "products" | "services" | "contact", showSearch?: boolean }) {
+type NavbarProps = {
+  activeTab?: "profile" | "products" | "services" | "contact" | "none";
+  showSearch?: boolean;
+  user?: {
+    name: string;
+    email: string;
+  } | null;
+};
+
+export default function Navbar({
+  activeTab,
+  showSearch = true,
+  user = null,
+}: NavbarProps) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
@@ -18,29 +31,29 @@ export default function Navbar({ activeTab = "profile", showSearch = true }: { a
 
         {/* Desktop Links */}
         <div className="hidden md:flex items-center gap-10 text-sm font-medium ml-8">
-          <Link 
-            href="/" 
+          <Link
+            href="/"
             className={`relative group transition-colors ${activeTab === "profile" ? "text-[#f05c35]" : "text-zinc-500 hover:text-black"}`}
           >
             Profile
             {activeTab === "profile" && <span className="absolute -bottom-[8px] left-0 w-full h-[3px] bg-[#f05c35]"></span>}
           </Link>
-          <Link 
-            href="/products" 
+          <Link
+            href="/products"
             className={`relative group transition-colors ${activeTab === "products" ? "text-[#f05c35]" : "text-zinc-500 hover:text-black"}`}
           >
             Products
             {activeTab === "products" && <span className="absolute -bottom-[8px] left-0 w-full h-[3px] bg-[#f05c35]"></span>}
           </Link>
-          <Link 
-            href="/services" 
+          <Link
+            href="/services"
             className={`relative group transition-colors ${activeTab === "services" ? "text-[#f05c35]" : "text-zinc-500 hover:text-black"}`}
           >
             Services
             {activeTab === "services" && <span className="absolute -bottom-[8px] left-0 w-full h-[3px] bg-[#f05c35]"></span>}
           </Link>
-          <Link 
-            href="/contact" 
+          <Link
+            href="/contact"
             className={`relative group transition-colors ${activeTab === "contact" ? "text-[#f05c35]" : "text-zinc-500 hover:text-black"}`}
           >
             Contact
@@ -48,21 +61,52 @@ export default function Navbar({ activeTab = "profile", showSearch = true }: { a
           </Link>
         </div>
 
-        {/* Right Side: Search & Login */}
+        {/* Right Side: Search & Login/User */}
         <div className="hidden md:flex items-center gap-4 ml-auto">
           {showSearch && (
             <div className="relative flex items-center">
               <Search className="w-4 h-4 absolute left-3 text-zinc-400" />
-              <input 
-                type="text" 
-                placeholder="Search catalog..." 
+              <input
+                type="text"
+                placeholder="Search catalog..."
                 className="pl-9 pr-4 py-2 bg-zinc-100 rounded-md text-sm outline-none focus:ring-2 focus:ring-[#f05c35]/50 transition-all w-[200px]"
               />
             </div>
           )}
-          <Button className="bg-black text-white hover:bg-zinc-800 rounded px-6 py-2 h-auto text-sm">
-            Login
-          </Button>
+          {user ? (
+            <div className="flex items-center gap-3">
+              <Link
+                href="/dashboard"
+                className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+              >
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#f05c35] to-[#d94a28] flex items-center justify-center text-white font-bold text-xs">
+                  {user.name.charAt(0).toUpperCase()}
+                </div>
+                <span className="text-sm font-medium text-zinc-700">
+                  {user.name}
+                </span>
+              </Link>
+              <form action="/api/logout" method="POST">
+                <button
+                  type="button"
+                  onClick={async () => {
+                    const { logoutAction } = await import("@/app/actions/auth");
+                    await logoutAction();
+                  }}
+                  className="text-zinc-400 hover:text-red-500 transition-colors p-1.5 rounded-lg hover:bg-zinc-100 cursor-pointer"
+                  title="Logout"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </form>
+            </div>
+          ) : (
+            <Link href="/login">
+              <Button className="bg-black text-white hover:bg-zinc-800 rounded px-6 py-2 h-auto text-sm">
+                Login
+              </Button>
+            </Link>
+          )}
         </div>
 
         {/* Mobile Menu Toggle */}
@@ -76,7 +120,7 @@ export default function Navbar({ activeTab = "profile", showSearch = true }: { a
             {menuOpen ? (
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
             ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" x2="20" y1="12" y2="12" /><line x1="4" x2="20" y1="6" y2="6" /><line x1="4" x2="20" y1="18" y2="18" /></svg>
             )}
           </button>
         </div>
@@ -85,38 +129,67 @@ export default function Navbar({ activeTab = "profile", showSearch = true }: { a
       {/* Mobile Menu Dropdown */}
       {menuOpen && (
         <div className="md:hidden bg-white border-t border-zinc-100 px-6 py-4 flex flex-col gap-4 shadow-lg absolute w-full">
-          <Link 
-            href="/" 
+          <Link
+            href="/"
             className={`font-medium ${activeTab === "profile" ? "text-[#f05c35]" : "text-zinc-600"}`}
             onClick={() => setMenuOpen(false)}
           >
             Profile
           </Link>
-          <Link 
-            href="/products" 
+          <Link
+            href="/products"
             className={`font-medium ${activeTab === "products" ? "text-[#f05c35]" : "text-zinc-600"}`}
             onClick={() => setMenuOpen(false)}
           >
             Products
           </Link>
-          <Link 
-            href="/services" 
+          <Link
+            href="/services"
             className={`font-medium ${activeTab === "services" ? "text-[#f05c35]" : "text-zinc-600"}`}
             onClick={() => setMenuOpen(false)}
           >
             Services
           </Link>
-          <Link 
-            href="/contact" 
+          <Link
+            href="/contact"
             className={`font-medium ${activeTab === "contact" ? "text-[#f05c35]" : "text-zinc-600"}`}
             onClick={() => setMenuOpen(false)}
           >
             Contact
           </Link>
           <div className="pt-4 border-t border-zinc-100">
-            <Button className="w-full bg-black text-white hover:bg-zinc-800 rounded py-2 h-auto text-sm">
-              Login
-            </Button>
+            {user ? (
+              <div className="flex items-center justify-between">
+                <Link
+                  href="/dashboard"
+                  className="flex items-center gap-2"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#f05c35] to-[#d94a28] flex items-center justify-center text-white font-bold text-xs">
+                    {user.name.charAt(0).toUpperCase()}
+                  </div>
+                  <span className="text-sm font-medium text-zinc-700">
+                    {user.name}
+                  </span>
+                </Link>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    const { logoutAction } = await import("@/app/actions/auth");
+                    await logoutAction();
+                  }}
+                  className="text-zinc-400 hover:text-red-500 transition-colors p-2 cursor-pointer"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <Link href="/login" onClick={() => setMenuOpen(false)}>
+                <Button className="w-full bg-black text-white hover:bg-zinc-800 rounded py-2 h-auto text-sm">
+                  Login
+                </Button>
+              </Link>
+            )}
           </div>
         </div>
       )}
