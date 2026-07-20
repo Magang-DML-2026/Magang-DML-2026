@@ -5,6 +5,7 @@ import { useActionState } from "react";
 import { registerAction, type AuthState } from "@/app/actions/auth";
 import { Eye, EyeOff, ArrowRight, UserPlus } from "lucide-react";
 import { useState } from "react";
+import { BubbleAnimation } from "@/components/ui/bubble-animation";
 
 export default function RegisterPage() {
   const [state, action, pending] = useActionState<AuthState, FormData>(
@@ -18,6 +19,7 @@ export default function RegisterPage() {
     <div className="min-h-screen flex font-sans">
       {/* Left Panel - Branding */}
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 relative overflow-hidden">
+        <BubbleAnimation />
         {/* Decorative elements */}
         <div className="absolute inset-0">
           <div className="absolute top-32 right-20 w-72 h-72 bg-[#f05c35]/20 rounded-full blur-3xl" />
