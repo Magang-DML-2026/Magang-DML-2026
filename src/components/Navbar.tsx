@@ -3,11 +3,13 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Search, LogOut } from "lucide-react";
+import { Search, LogOut, ShoppingCart, Menu } from "lucide-react";
 
 type NavbarProps = {
-  activeTab?: "profile" | "products" | "services" | "contact" | "none";
+  activeTab?: "profile" | "products" | "services" | "contact" | "none" | "kategori" | "proyek" | "tentang-kami";
   showSearch?: boolean;
+  dashboardMode?: boolean;
+  onToggleSidebar?: () => void;
   user?: {
     name: string;
     email: string;
@@ -17,6 +19,8 @@ type NavbarProps = {
 export default function Navbar({
   activeTab,
   showSearch = true,
+  dashboardMode = false,
+  onToggleSidebar,
   user = null,
 }: NavbarProps) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -24,41 +28,87 @@ export default function Navbar({
   return (
     <header className="w-full bg-white border-b border-zinc-100 sticky top-0 z-50">
       <nav className="w-full flex justify-between items-center px-6 md:px-12 py-6 max-w-[1400px] mx-auto">
-        {/* Logo */}
-        <Link href="/" className="text-xl font-bold tracking-tight text-black whitespace-nowrap">
-          Duta Mitra Luhur
-        </Link>
+        {/* Logo & Sidebar Toggle */}
+        <div className="flex items-center gap-4">
+          {dashboardMode && onToggleSidebar && (
+            <button 
+              onClick={onToggleSidebar}
+              className="p-2 -ml-2 text-zinc-500 hover:text-black hover:bg-zinc-100 rounded-md transition-colors"
+              title="Toggle Sidebar"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+          )}
+          <Link href="/" className="text-xl font-bold tracking-tight text-black whitespace-nowrap">
+            Duta Mitra Luhur
+          </Link>
+        </div>
 
         {/* Desktop Links */}
         <div className="hidden md:flex items-center gap-10 text-sm font-medium ml-8">
-          <Link
-            href="/"
-            className={`relative group transition-colors ${activeTab === "profile" ? "text-[#f05c35]" : "text-zinc-500 hover:text-black"}`}
-          >
-            Profile
-            {activeTab === "profile" && <span className="absolute -bottom-[8px] left-0 w-full h-[3px] bg-[#f05c35]"></span>}
-          </Link>
-          <Link
-            href="/products"
-            className={`relative group transition-colors ${activeTab === "products" ? "text-[#f05c35]" : "text-zinc-500 hover:text-black"}`}
-          >
-            Products
-            {activeTab === "products" && <span className="absolute -bottom-[8px] left-0 w-full h-[3px] bg-[#f05c35]"></span>}
-          </Link>
-          <Link
-            href="/services"
-            className={`relative group transition-colors ${activeTab === "services" ? "text-[#f05c35]" : "text-zinc-500 hover:text-black"}`}
-          >
-            Services
-            {activeTab === "services" && <span className="absolute -bottom-[8px] left-0 w-full h-[3px] bg-[#f05c35]"></span>}
-          </Link>
-          <Link
-            href="/contact"
-            className={`relative group transition-colors ${activeTab === "contact" ? "text-[#f05c35]" : "text-zinc-500 hover:text-black"}`}
-          >
-            Contact
-            {activeTab === "contact" && <span className="absolute -bottom-[8px] left-0 w-full h-[3px] bg-[#f05c35]"></span>}
-          </Link>
+          {dashboardMode ? (
+            <>
+              <Link
+                href="/dashboard/katalog"
+                className={`relative group transition-all duration-300 ${activeTab === "products" ? "text-[#f05c35] drop-shadow-[0_0_8px_rgba(240,92,53,0.6)]" : "text-zinc-500 hover:text-black"}`}
+              >
+                Products
+                {activeTab === "products" && <span className="absolute -bottom-[8px] left-0 w-full h-[3px] bg-[#f05c35] shadow-[0_0_8px_rgba(240,92,53,0.8)]"></span>}
+              </Link>
+              <Link
+                href="/dashboard/kategori"
+                className={`relative group transition-all duration-300 ${activeTab === "kategori" ? "text-[#f05c35] drop-shadow-[0_0_8px_rgba(240,92,53,0.6)]" : "text-zinc-500 hover:text-black"}`}
+              >
+                Kategori
+                {activeTab === "kategori" && <span className="absolute -bottom-[8px] left-0 w-full h-[3px] bg-[#f05c35] shadow-[0_0_8px_rgba(240,92,53,0.8)]"></span>}
+              </Link>
+              <Link
+                href="/dashboard/proyek"
+                className={`relative group transition-all duration-300 ${activeTab === "proyek" ? "text-[#f05c35] drop-shadow-[0_0_8px_rgba(240,92,53,0.6)]" : "text-zinc-500 hover:text-black"}`}
+              >
+                Proyek
+                {activeTab === "proyek" && <span className="absolute -bottom-[8px] left-0 w-full h-[3px] bg-[#f05c35] shadow-[0_0_8px_rgba(240,92,53,0.8)]"></span>}
+              </Link>
+              <Link
+                href="/dashboard/tentang-kami"
+                className={`relative group transition-all duration-300 ${activeTab === "tentang-kami" ? "text-[#f05c35] drop-shadow-[0_0_8px_rgba(240,92,53,0.6)]" : "text-zinc-500 hover:text-black"}`}
+              >
+                Tentang Kami
+                {activeTab === "tentang-kami" && <span className="absolute -bottom-[8px] left-0 w-full h-[3px] bg-[#f05c35] shadow-[0_0_8px_rgba(240,92,53,0.8)]"></span>}
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link
+                href="/"
+                className={`relative group transition-all duration-300 ${activeTab === "profile" ? "text-[#f05c35] drop-shadow-[0_0_8px_rgba(240,92,53,0.6)]" : "text-zinc-500 hover:text-black"}`}
+              >
+                Profile
+                {activeTab === "profile" && <span className="absolute -bottom-[8px] left-0 w-full h-[3px] bg-[#f05c35] shadow-[0_0_8px_rgba(240,92,53,0.8)]"></span>}
+              </Link>
+              <Link
+                href="/products"
+                className={`relative group transition-all duration-300 ${activeTab === "products" ? "text-[#f05c35] drop-shadow-[0_0_8px_rgba(240,92,53,0.6)]" : "text-zinc-500 hover:text-black"}`}
+              >
+                Products
+                {activeTab === "products" && <span className="absolute -bottom-[8px] left-0 w-full h-[3px] bg-[#f05c35] shadow-[0_0_8px_rgba(240,92,53,0.8)]"></span>}
+              </Link>
+              <Link
+                href="/services"
+                className={`relative group transition-all duration-300 ${activeTab === "services" ? "text-[#f05c35] drop-shadow-[0_0_8px_rgba(240,92,53,0.6)]" : "text-zinc-500 hover:text-black"}`}
+              >
+                Services
+                {activeTab === "services" && <span className="absolute -bottom-[8px] left-0 w-full h-[3px] bg-[#f05c35] shadow-[0_0_8px_rgba(240,92,53,0.8)]"></span>}
+              </Link>
+              <Link
+                href="/contact"
+                className={`relative group transition-all duration-300 ${activeTab === "contact" ? "text-[#f05c35] drop-shadow-[0_0_8px_rgba(240,92,53,0.6)]" : "text-zinc-500 hover:text-black"}`}
+              >
+                Contact
+                {activeTab === "contact" && <span className="absolute -bottom-[8px] left-0 w-full h-[3px] bg-[#f05c35] shadow-[0_0_8px_rgba(240,92,53,0.8)]"></span>}
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Right Side: Search & Login/User */}
@@ -74,15 +124,20 @@ export default function Navbar({
             </div>
           )}
           {user ? (
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
+              {dashboardMode && (
+                <Link href="/dashboard/cart" className="text-zinc-600 hover:text-black transition-colors">
+                  <ShoppingCart className="w-5 h-5" />
+                </Link>
+              )}
               <Link
                 href="/dashboard"
-                className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+                className="flex items-center gap-2 hover:opacity-80 transition-opacity ml-2"
               >
                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#f05c35] to-[#d94a28] flex items-center justify-center text-white font-bold text-xs">
                   {user.name.charAt(0).toUpperCase()}
                 </div>
-                <span className="text-sm font-medium text-zinc-700">
+                <span className="text-sm font-medium text-zinc-700 hidden sm:inline-block">
                   {user.name}
                 </span>
               </Link>
@@ -129,34 +184,69 @@ export default function Navbar({
       {/* Mobile Menu Dropdown */}
       {menuOpen && (
         <div className="md:hidden bg-white border-t border-zinc-100 px-6 py-4 flex flex-col gap-4 shadow-lg absolute w-full">
-          <Link
-            href="/"
-            className={`font-medium ${activeTab === "profile" ? "text-[#f05c35]" : "text-zinc-600"}`}
-            onClick={() => setMenuOpen(false)}
-          >
-            Profile
-          </Link>
-          <Link
-            href="/products"
-            className={`font-medium ${activeTab === "products" ? "text-[#f05c35]" : "text-zinc-600"}`}
-            onClick={() => setMenuOpen(false)}
-          >
-            Products
-          </Link>
-          <Link
-            href="/services"
-            className={`font-medium ${activeTab === "services" ? "text-[#f05c35]" : "text-zinc-600"}`}
-            onClick={() => setMenuOpen(false)}
-          >
-            Services
-          </Link>
-          <Link
-            href="/contact"
-            className={`font-medium ${activeTab === "contact" ? "text-[#f05c35]" : "text-zinc-600"}`}
-            onClick={() => setMenuOpen(false)}
-          >
-            Contact
-          </Link>
+          {dashboardMode ? (
+            <>
+              <Link
+                href="/dashboard/katalog"
+                className={`font-medium ${activeTab === "products" ? "text-[#f05c35]" : "text-zinc-600"}`}
+                onClick={() => setMenuOpen(false)}
+              >
+                Products
+              </Link>
+              <Link
+                href="/dashboard/kategori"
+                className={`font-medium ${activeTab === "kategori" ? "text-[#f05c35]" : "text-zinc-600"}`}
+                onClick={() => setMenuOpen(false)}
+              >
+                Kategori
+              </Link>
+              <Link
+                href="/dashboard/proyek"
+                className={`font-medium ${activeTab === "proyek" ? "text-[#f05c35]" : "text-zinc-600"}`}
+                onClick={() => setMenuOpen(false)}
+              >
+                Proyek
+              </Link>
+              <Link
+                href="/dashboard/tentang-kami"
+                className={`font-medium ${activeTab === "tentang-kami" ? "text-[#f05c35]" : "text-zinc-600"}`}
+                onClick={() => setMenuOpen(false)}
+              >
+                Tentang Kami
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link
+                href="/"
+                className={`font-medium ${activeTab === "profile" ? "text-[#f05c35]" : "text-zinc-600"}`}
+                onClick={() => setMenuOpen(false)}
+              >
+                Profile
+              </Link>
+              <Link
+                href="/products"
+                className={`font-medium ${activeTab === "products" ? "text-[#f05c35]" : "text-zinc-600"}`}
+                onClick={() => setMenuOpen(false)}
+              >
+                Products
+              </Link>
+              <Link
+                href="/services"
+                className={`font-medium ${activeTab === "services" ? "text-[#f05c35]" : "text-zinc-600"}`}
+                onClick={() => setMenuOpen(false)}
+              >
+                Services
+              </Link>
+              <Link
+                href="/contact"
+                className={`font-medium ${activeTab === "contact" ? "text-[#f05c35]" : "text-zinc-600"}`}
+                onClick={() => setMenuOpen(false)}
+              >
+                Contact
+              </Link>
+            </>
+          )}
           <div className="pt-4 border-t border-zinc-100">
             {user ? (
               <div className="flex items-center justify-between">
