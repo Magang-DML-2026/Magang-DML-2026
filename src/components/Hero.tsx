@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Settings } from "lucide-react";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 export default function Hero() {
   return (
@@ -43,13 +44,13 @@ export default function Hero() {
           </p>
 
           <div className="flex items-center gap-4 pt-2">
-            <Button className="bg-[#f05c35] hover:bg-[#d94a28] text-white px-6 py-6 text-base rounded-md font-medium border-0 shadow-lg shadow-[#f05c35]/20">
+            <Link href="/products" className="inline-flex shrink-0 items-center justify-center bg-[#f05c35] hover:bg-[#d94a28] text-white px-6 py-6 text-base rounded-md font-medium border-0 shadow-lg shadow-[#f05c35]/20 transition-all">
               Explore Catalog
               <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
-            <Button variant="outline" className="bg-white/10 backdrop-blur-md border-white/30 text-white hover:bg-white/20 px-6 py-6 text-base rounded-md font-medium">
+            </Link>
+            <Link href="/services" className="inline-flex shrink-0 items-center justify-center bg-white/10 backdrop-blur-md border border-white/30 text-white hover:bg-white/20 px-6 py-6 text-base rounded-md font-medium transition-all">
               Technical Data
-            </Button>
+            </Link>
           </div>
         </motion.div>
 
