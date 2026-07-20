@@ -53,11 +53,14 @@ export const products = pgTable("products", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
   description: text("description"),
+  category: varchar("category", { length: 100 }),
+  tags: text("tags").array(), // Use array for tags
   material: varchar("material", { length: 100 }),
   process: varchar("process", { length: 100 }),
   price: integer("price").notNull(), // Harga satuan dalam Rupiah
   imageUrl: text("image_url"),
   stock: integer("stock").notNull().default(0),
+  featured: boolean("featured").notNull().default(false),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

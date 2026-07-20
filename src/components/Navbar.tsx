@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useRef } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Search, LogOut, ShoppingCart, Menu } from "lucide-react";
+import { Search, LogOut, ShoppingCart, Menu, X } from "lucide-react";
 
 type NavbarProps = {
   activeTab?: "profile" | "products" | "services" | "contact" | "none" | "kategori" | "proyek" | "tentang-kami";
@@ -24,6 +25,29 @@ export default function Navbar({
   user = null,
 }: NavbarProps) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [searchQuery, setSearchQuery] = useState(searchParams.get("q") ?? "");
+  const mobileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleSearch = (q: string) => {
+    const trimmed = q.trim();
+    if (trimmed) {
+      router.push(`/products?q=${encodeURIComponent(trimmed)}`);
+    } else {
+      router.push("/products");
+    }
+    setMobileSearchOpen(false);
+    setMenuOpen(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleSearch(searchQuery);
+    }
+  };
+
 
   return (
     <header className="w-full bg-white border-b border-zinc-100 sticky top-0 z-50">
@@ -114,13 +138,27 @@ export default function Navbar({
         {/* Right Side: Search & Login/User */}
         <div className="hidden md:flex items-center gap-4 ml-auto">
           {showSearch && (
-            <div className="relative flex items-center">
-              <Search className="w-4 h-4 absolute left-3 text-zinc-400" />
+            <div className="relative flex items-center group">
+              <Search
+                className="w-4 h-4 absolute left-3 text-zinc-400 cursor-pointer"
+                onClick={() => handleSearch(searchQuery)}
+              />
               <input
                 type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={handleKeyDown}
                 placeholder="Search catalog..."
-                className="pl-9 pr-4 py-2 bg-zinc-100 rounded-md text-sm outline-none focus:ring-2 focus:ring-[#f05c35]/50 transition-all w-[200px]"
+                className="pl-9 pr-4 py-2 bg-zinc-100 rounded-md text-sm outline-none focus:ring-2 focus:ring-[#f05c35]/50 transition-all w-[200px] focus:w-[260px]"
               />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-2.5 text-zinc-400 hover:text-zinc-700"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
             </div>
           )}
           {user ? (
@@ -167,7 +205,13 @@ export default function Navbar({
         {/* Mobile Menu Toggle */}
         <div className="md:hidden ml-auto flex items-center gap-4">
           {showSearch && (
-            <button className="text-zinc-500 hover:text-black transition-colors">
+            <button
+              className="text-zinc-500 hover:text-black transition-colors"
+              onClick={() => {
+                setMobileSearchOpen(!mobileSearchOpen);
+                setTimeout(() => mobileInputRef.current?.focus(), 50);
+              }}
+            >
               <Search className="w-5 h-5" />
             </button>
           )}
@@ -180,6 +224,34 @@ export default function Navbar({
           </button>
         </div>
       </nav>
+
+      {/* Mobile Search Bar */}
+      {mobileSearchOpen && showSearch && (
+        <div className="md:hidden bg-white border-t border-zinc-100 px-6 py-3 flex items-center gap-3 shadow-sm">
+          <Search className="w-4 h-4 text-zinc-400 shrink-0" />
+          <input
+            ref={mobileInputRef}
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Search catalog..."
+            className="flex-1 text-sm outline-none bg-transparent"
+          />
+          {searchQuery && (
+            <button onClick={() => setSearchQuery("")} className="text-zinc-400 hover:text-zinc-700">
+              <X className="w-4 h-4" />
+            </button>
+          )}
+          <Button
+            size="sm"
+            className="bg-black text-white hover:bg-zinc-800 h-8 px-4 text-xs rounded"
+            onClick={() => handleSearch(searchQuery)}
+          >
+            Search
+          </Button>
+        </div>
+      )}
 
       {/* Mobile Menu Dropdown */}
       {menuOpen && (
