@@ -1,9 +1,14 @@
 import { db } from "./index";
-import { products } from "./schema";
+import { products, users, transactions, addresses } from "./schema";
+import { eq } from "drizzle-orm";
+import { hashPassword } from "../lib/auth";
 
 async function seed() {
   console.log("Seeding database...");
   
+  await db.delete(transactions);
+  await db.delete(addresses);
+  await db.delete(users);
   await db.delete(products);
 
   const PRODUCTS = [
@@ -97,8 +102,101 @@ async function seed() {
   ];
 
   const newProducts = await db.insert(products).values(PRODUCTS).returning();
-
   console.log("Products seeded:", newProducts.length);
+
+  // Users
+  const hashedPassword = await hashPassword("password123");
+  const USERS = [
+    { name: "Bambang S.", email: "admin@dml.com", password: hashedPassword, role: "admin" },
+    { name: "Indo Rubber Corp", email: "procurement@indorubber.com", password: hashedPassword, role: "user" },
+    { name: "Adi Wijaya", email: "adi@retail.com", password: hashedPassword, role: "user" },
+    { name: "Tunas Logistik PT", email: "supply@tunaslogistik.com", password: hashedPassword, role: "user" },
+  ];
+  const newUsers = await db.insert(users).values(USERS).returning();
+  console.log("Users seeded:", newUsers.length);
+
+  // Address
+  const newAddress = await db.insert(addresses).values({
+    userId: newUsers[1].id,
+    label: "Kantor Pusat",
+    recipientName: "Bpk. Budi",
+    phone: "08123456789",
+    province: "DKI Jakarta",
+    city: "Jakarta Selatan",
+    district: "Setiabudi",
+    postalCode: "12920",
+    fullAddress: "Jl. Sudirman Kav 21",
+    isDefault: true,
+  }).returning();
+
+  // Transactions
+  // We need recent dates for charts (e.g. today, yesterday)
+  const now = new Date();
+  const yesterday = new Date(now); yesterday.setDate(yesterday.getDate() - 1);
+  const twoDaysAgo = new Date(now); twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+
+  const TRANSACTIONS = [
+    {
+      id: "#DML-2023-981",
+      userId: newUsers[1].id,
+      addressId: newAddress[0].id,
+      shippingCost: 500000,
+      taxAmount: 14500000,
+      subtotal: 130200000,
+      totalAmount: 145200000,
+      status: "Paid",
+      shippingMethod: "BULK",
+      paymentMethod: "Bank Transfer",
+      createdAt: now,
+      updatedAt: now,
+    },
+    {
+      id: "#DML-2023-982",
+      userId: newUsers[2].id,
+      addressId: newAddress[0].id,
+      shippingCost: 50000,
+      taxAmount: 245000,
+      subtotal: 2155000,
+      totalAmount: 2450000,
+      status: "Pending",
+      shippingMethod: "UNIT",
+      paymentMethod: "Virtual Account",
+      createdAt: yesterday,
+      updatedAt: yesterday,
+    },
+    {
+      id: "#DML-2023-983",
+      userId: newUsers[3].id,
+      addressId: newAddress[0].id,
+      shippingCost: 200000,
+      taxAmount: 6780000,
+      subtotal: 60820000,
+      totalAmount: 67800000,
+      status: "Paid",
+      shippingMethod: "BATCH",
+      paymentMethod: "Bank Transfer",
+      createdAt: twoDaysAgo,
+      updatedAt: twoDaysAgo,
+    },
+    {
+      id: "#DML-2023-984",
+      userId: newUsers[1].id,
+      addressId: newAddress[0].id,
+      shippingCost: 0,
+      taxAmount: 5000000,
+      subtotal: 45000000,
+      totalAmount: 50000000,
+      status: "Overdue",
+      shippingMethod: "BULK",
+      paymentMethod: "Credit",
+      createdAt: twoDaysAgo,
+      updatedAt: twoDaysAgo,
+    }
+  ];
+
+  const newTransactions = await db.insert(transactions).values(TRANSACTIONS).returning();
+  console.log("Transactions seeded:", newTransactions.length);
+
   process.exit(0);
 }
 

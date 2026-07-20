@@ -119,9 +119,12 @@ export async function loginAction(
     return { error: "Email atau password salah." };
   }
 
-  // Create session & redirect
+  // Create session & redirect based on role
   await createSession(user.id);
-  redirect("/dashboard");
+  if (user.role === "admin") {
+    redirect("/admin/dashboard");
+  }
+  redirect("/");
 }
 
 // --- Logout ---
