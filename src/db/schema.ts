@@ -142,3 +142,15 @@ export const complaintMessages = pgTable("complaint_messages", {
 
 export type Complaint = typeof complaints.$inferSelect;
 export type ComplaintMessage = typeof complaintMessages.$inferSelect;
+
+export const printLogs = pgTable("print_logs", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  documentName: varchar("document_name", { length: 255 }).notNull(),
+  documentType: varchar("document_type", { length: 50 }).notNull(),
+  destination: varchar("destination", { length: 255 }).notNull(),
+  status: varchar("status", { length: 50 }).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type PrintLog = typeof printLogs.$inferSelect;

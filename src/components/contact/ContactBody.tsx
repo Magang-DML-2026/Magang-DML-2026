@@ -26,9 +26,8 @@ export default function ContactBody() {
               <div className="flex flex-col gap-2 pt-1">
                 <h3 className="text-lg font-bold text-black leading-none">Kantor Pusat</h3>
                 <p className="text-sm text-zinc-500 leading-relaxed uppercase">
-                  Kawasan Industri Sentra Bitung, Tangerang<br />
-                  JL. BAITUSSAADAH RT 01/03, KADU, CURUG,<br />
-                  TANGERANG, BANTEN
+                  Kawasan Industri Sentra Bitung, Blok A-14<br />
+                  Cikupa, Banten, Indonesia
                 </p>
               </div>
             </div>

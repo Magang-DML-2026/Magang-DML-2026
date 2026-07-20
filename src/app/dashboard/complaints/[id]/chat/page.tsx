@@ -154,12 +154,14 @@ export default async function ComplaintChatPage({
           {/* Chat Input Area */}
           <div className="p-4 bg-white border-t border-zinc-200 shrink-0">
              <form action={handleSendMessage} className="flex items-end gap-3 bg-zinc-50 border border-zinc-200 rounded-xl p-2 focus-within:ring-2 focus-within:ring-[#cc4224]/20 focus-within:border-[#cc4224] transition-all">
-                <button type="button" className="p-2.5 text-zinc-400 hover:text-zinc-700 hover:bg-zinc-200 rounded-lg transition-colors shrink-0">
+                <label htmlFor="file-upload" className="cursor-pointer p-2.5 text-zinc-400 hover:text-zinc-700 hover:bg-zinc-200 rounded-lg transition-colors shrink-0">
                    <Paperclip className="w-5 h-5" />
-                </button>
-                <button type="button" className="p-2.5 text-zinc-400 hover:text-zinc-700 hover:bg-zinc-200 rounded-lg transition-colors shrink-0">
+                   <input type="file" id="file-upload" name="attachment" className="hidden" />
+                </label>
+                <label htmlFor="image-upload" className="cursor-pointer p-2.5 text-zinc-400 hover:text-zinc-700 hover:bg-zinc-200 rounded-lg transition-colors shrink-0">
                    <ImageIcon className="w-5 h-5" />
-                </button>
+                   <input type="file" id="image-upload" name="image" accept="image/*" className="hidden" />
+                </label>
                 
                 <textarea 
                   name="message"

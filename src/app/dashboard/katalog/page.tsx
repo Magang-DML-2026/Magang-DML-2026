@@ -2,6 +2,7 @@ import B2CCatalogHeader from "@/components/dashboard/katalog/B2CCatalogHeader";
 import B2CCatalogFilters from "@/components/dashboard/katalog/B2CCatalogFilters";
 import B2CProductGrid from "@/components/dashboard/katalog/B2CProductGrid";
 import B2CCatalogFooterCTA from "@/components/dashboard/katalog/B2CCatalogFooterCTA";
+import Footer from "@/components/Footer";
 
 export default function B2CCatalogPage() {
   return (
@@ -25,6 +26,7 @@ export default function B2CCatalogPage() {
       {/* Footer Custom CTA */}
       <div className="mt-auto">
         <B2CCatalogFooterCTA />
+        <Footer />
       </div>
     </div>
   );

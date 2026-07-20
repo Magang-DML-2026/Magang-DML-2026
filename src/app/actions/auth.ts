@@ -13,6 +13,7 @@ export type AuthState = {
   fieldErrors?: {
     name?: string;
     email?: string;
+    phone?: string;
     password?: string;
     confirmPassword?: string;
   };
@@ -25,6 +26,7 @@ export async function registerAction(
 ): Promise<AuthState> {
   const name = formData.get("name") as string;
   const email = formData.get("email") as string;
+  const phone = formData.get("phone") as string;
   const password = formData.get("password") as string;
   const confirmPassword = formData.get("confirmPassword") as string;
 
@@ -36,6 +38,9 @@ export async function registerAction(
   }
   if (!email || !email.includes("@")) {
     fieldErrors.email = "Email tidak valid.";
+  }
+  if (!phone || phone.trim().length < 8) {
+    fieldErrors.phone = "Nomor telepon tidak valid.";
   }
   if (!password || password.length < 6) {
     fieldErrors.password = "Password minimal 6 karakter.";
@@ -67,6 +72,7 @@ export async function registerAction(
     .values({
       name: name.trim(),
       email: email.toLowerCase().trim(),
+      phone: phone.trim(),
       password: hashedPassword,
     })
     .returning({ id: users.id });

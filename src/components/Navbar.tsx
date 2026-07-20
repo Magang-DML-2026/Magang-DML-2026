@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Search, LogOut, ShoppingCart } from "lucide-react";
+import { Search, LogOut, ShoppingCart, Menu } from "lucide-react";
 
 type NavbarProps = {
   activeTab?: "profile" | "products" | "services" | "contact" | "none" | "kategori" | "proyek" | "tentang-kami";
@@ -28,10 +28,21 @@ export default function Navbar({
   return (
     <header className="w-full bg-white border-b border-zinc-100 sticky top-0 z-50">
       <nav className="w-full flex justify-between items-center px-6 md:px-12 py-6 max-w-[1400px] mx-auto">
-        {/* Logo */}
-        <Link href="/" className="text-xl font-bold tracking-tight text-black whitespace-nowrap">
-          Duta Mitra Luhur
-        </Link>
+        {/* Logo & Sidebar Toggle */}
+        <div className="flex items-center gap-4">
+          {dashboardMode && onToggleSidebar && (
+            <button 
+              onClick={onToggleSidebar}
+              className="p-2 -ml-2 text-zinc-500 hover:text-black hover:bg-zinc-100 rounded-md transition-colors"
+              title="Toggle Sidebar"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+          )}
+          <Link href="/" className="text-xl font-bold tracking-tight text-black whitespace-nowrap">
+            Duta Mitra Luhur
+          </Link>
+        </div>
 
         {/* Desktop Links */}
         <div className="hidden md:flex items-center gap-10 text-sm font-medium ml-8">

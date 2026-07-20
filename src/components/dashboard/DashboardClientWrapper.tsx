@@ -33,18 +33,11 @@ export default function DashboardClientWrapper({
       />
 
       <div className="flex flex-1 overflow-hidden relative">
-        {/* Fixed Toggle Button (Alternative if not in Navbar) - We'll just put it floating here for ease of access */}
-        <button 
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className={`absolute top-4 z-40 p-2 bg-white border border-zinc-200 rounded-r-md shadow-sm text-zinc-600 hover:text-black hover:bg-zinc-50 transition-all ${sidebarOpen ? 'left-[260px]' : 'left-0'}`}
-          title="Toggle Sidebar"
-        >
-          {sidebarOpen ? <PanelLeftClose className="w-5 h-5" /> : <PanelLeftOpen className="w-5 h-5" />}
-        </button>
+
 
         {/* Sidebar */}
         <aside 
-          className={`w-[260px] bg-white border-r border-zinc-200 shrink-0 transition-all duration-300 flex flex-col ${sidebarOpen ? 'ml-0' : '-ml-[260px]'}`}
+          className={`absolute top-0 bottom-0 left-0 z-30 w-[260px] bg-white border-r border-zinc-200 transition-transform duration-300 flex flex-col ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
         >
           {/* Company Context */}
           <div className="p-6 border-b border-zinc-100 flex items-center gap-3">

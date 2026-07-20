@@ -1,12 +1,14 @@
 import { getSession } from "@/lib/session";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, MapPin, Truck, ChevronRight, CreditCard, Wallet, Building2, Package } from "lucide-react";
+import { Lock, CreditCard, Wallet, Building2, HelpCircle } from "lucide-react";
 import { getCart } from "@/app/actions/cart";
 import { createTransaction } from "@/app/actions/checkout";
 import { db } from "@/db";
 import { addresses } from "@/db/schema";
 import { eq } from "drizzle-orm";
+import CheckoutAddressModal from "@/components/dashboard/CheckoutAddressModal";
+import HorizontalScrollContainer from "@/components/dashboard/HorizontalScrollContainer";
 
 export default async function CheckoutPage({
   searchParams,
@@ -29,293 +31,218 @@ export default async function CheckoutPage({
 
   const subtotal = cartItems.reduce((acc, item) => acc + (item.product.price * item.quantity), 0);
   const ppn = subtotal * 0.11;
-  const shippingCost = 1500000; // Default shipping for now
+  const shippingCost = 45000; // Mock estimate to match cart
   const total = subtotal + ppn + shippingCost;
 
   return (
-    <div className="p-8 max-w-[1200px] mx-auto font-sans bg-[#F9FAFB] min-h-screen">
+    <div className="bg-[#F9FAFB] min-h-screen font-sans pb-16">
       
       {/* Header */}
-      <div className="flex items-center gap-4 mb-8">
-        <Link href="/dashboard/invoices" className="w-10 h-10 rounded-full bg-white border border-zinc-200 flex items-center justify-center text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50 transition-colors">
-          <ArrowLeft className="w-5 h-5" />
-        </Link>
-        <div>
-          <h1 className="text-[24px] font-bold text-zinc-900 tracking-tight">Checkout Pembayaran</h1>
-          <p className="text-[13px] text-zinc-500">Selesaikan pembayaran untuk Invoice INV-2026-004</p>
+      <div className="bg-white border-b border-zinc-200 sticky top-0 z-40">
+        <div className="max-w-[1200px] mx-auto px-8 h-[72px] flex items-center justify-between">
+          <Link href="/dashboard" className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-[#cc4224] rounded-lg flex items-center justify-center text-white font-bold text-[18px]">
+              D
+            </div>
+            <span className="font-bold text-[18px] text-zinc-900 tracking-tight">Duta Mitra Luhur</span>
+          </Link>
+          
+          <div className="flex items-center gap-6 text-[13px] font-semibold text-zinc-600">
+            <span className="flex items-center gap-2">
+              <Lock className="w-4 h-4" /> Secure Checkout
+            </span>
+            <span className="w-[1px] h-4 bg-zinc-300"></span>
+            <Link href="/dashboard/cart" className="hover:text-zinc-900 transition-colors">Cancel and Return</Link>
+          </div>
         </div>
       </div>
 
-      <form action={createTransaction} className="flex flex-col lg:flex-row gap-8">
-        <input type="hidden" name="addressId" value={defaultAddress?.id || ""} />
-        
-        {/* Left Column: Order Details */}
-        <div className="w-full lg:w-2/3 space-y-6">
-          
-          {/* 1. Alamat Pengiriman */}
-          <div className="bg-white border border-zinc-200 rounded-xl p-6 shadow-sm">
-            <div className="flex justify-between items-center mb-4 pb-4 border-b border-zinc-100">
-              <h2 className="text-[16px] font-bold text-zinc-900 flex items-center gap-2">
-                <MapPin className="w-5 h-5 text-[#cc4224]" />
-                Alamat Pengiriman
-              </h2>
-              <Link href="?modal=address" scroll={false} className="text-[13px] font-bold text-[#cc4224] hover:underline">
-                Ubah Alamat
-              </Link>
-            </div>
-            <div>
-              {defaultAddress ? (
-                <>
-                  <p className="text-[14px] font-bold text-zinc-900 mb-1">{defaultAddress.recipientName} <span className="font-normal text-zinc-500">({defaultAddress.phone})</span></p>
-                  <p className="text-[13px] text-zinc-600 leading-relaxed max-w-lg">
-                    {defaultAddress.fullAddress}, {defaultAddress.district}, {defaultAddress.city}, {defaultAddress.province} {defaultAddress.postalCode}
-                  </p>
-                </>
-              ) : (
-                <>
-                  <p className="text-[14px] font-bold text-zinc-900 mb-1">{session.userName} <span className="font-normal text-zinc-500">(+62) 812-3456-7890</span></p>
-                  <p className="text-[13px] text-zinc-600 leading-relaxed max-w-lg">
-                    Alamat belum diatur. Silakan tambah alamat Anda.
-                  </p>
-                </>
-              )}
-            </div>
-          </div>
-
-          {/* 2. Detail Pesanan */}
-          <div className="bg-white border border-zinc-200 rounded-xl p-6 shadow-sm">
-            <h2 className="text-[16px] font-bold text-zinc-900 mb-4 pb-4 border-b border-zinc-100 flex items-center gap-2">
-              <Package className="w-5 h-5 text-[#cc4224]" />
-              Detail Pesanan
-            </h2>
-            
-            <div className="space-y-6">
-              {cartItems.map((item) => (
-                <div key={item.id} className="flex gap-4">
-                  <div className="w-20 h-20 bg-zinc-100 rounded-lg overflow-hidden border border-zinc-200 shrink-0">
-                    <div 
-                      className="w-full h-full bg-cover bg-center opacity-80 mix-blend-multiply"
-                      style={{ backgroundImage: `url(${item.product.imageUrl || 'https://images.unsplash.com/photo-1621252179022-297eb0981e64?q=80'})` }}
-                    ></div>
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h3 className="text-[15px] font-bold text-zinc-900">{item.product.name}</h3>
-                        <p className="text-[12px] text-zinc-500 mt-1">Material: {item.product.material || "Rubber"} • Proses: {item.product.process || "Molding"}</p>
-                      </div>
-                      <p className="text-[15px] font-bold text-zinc-900">Rp {(item.product.price * item.quantity).toLocaleString("id-ID")}</p>
-                    </div>
-                    <div className="flex justify-between items-center mt-4">
-                      <span className="text-[12px] font-bold text-zinc-500 bg-zinc-100 px-2 py-1 rounded">Qty: {item.quantity.toLocaleString("id-ID")} Pcs</span>
-                      <span className="text-[12px] text-zinc-400">Rp {item.product.price.toLocaleString("id-ID")} / pcs</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* 3. Metode Pengiriman */}
-          <div className="bg-white border border-zinc-200 rounded-xl p-6 shadow-sm">
-            <h2 className="text-[16px] font-bold text-zinc-900 mb-4 pb-4 border-b border-zinc-100 flex items-center gap-2">
-              <Truck className="w-5 h-5 text-[#cc4224]" />
-              Metode Pengiriman
-            </h2>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <label className="border-2 p-4 rounded-xl cursor-pointer relative transition-colors has-[:checked]:border-[#cc4224] has-[:checked]:bg-[#fdf5f3] border-zinc-200 bg-white hover:border-zinc-300">
-                <input type="radio" name="shipping" value="Kargo Darat (LTL)" className="absolute right-4 top-4 w-4 h-4 accent-[#cc4224]" defaultChecked />
-                <h3 className="text-[14px] font-bold text-zinc-900">Kargo Darat (LTL)</h3>
-                <p className="text-[12px] text-zinc-500 mt-1 mb-2">Estimasi 2-3 hari kerja</p>
-                <p className="text-[14px] font-bold text-zinc-900">Rp 1.500.000</p>
-              </label>
-              
-              <label className="border-2 p-4 rounded-xl cursor-pointer relative transition-colors has-[:checked]:border-[#cc4224] has-[:checked]:bg-[#fdf5f3] border-zinc-200 bg-white hover:border-zinc-300">
-                <input type="radio" name="shipping" value="Pengiriman Udara" className="absolute right-4 top-4 w-4 h-4 accent-[#cc4224]" />
-                <h3 className="text-[14px] font-bold text-zinc-900">Pengiriman Udara</h3>
-                <p className="text-[12px] text-zinc-500 mt-1 mb-2">Estimasi 1 hari kerja</p>
-                <p className="text-[14px] font-bold text-zinc-900">Rp 4.500.000</p>
-              </label>
-            </div>
-          </div>
-
+      <div className="max-w-[1200px] mx-auto px-8 mt-8 mb-6">
+        <div className="flex items-center gap-2 text-[12px] font-semibold text-zinc-500">
+          <Link href="/dashboard/cart" className="hover:text-zinc-800 transition-colors">Cart</Link>
+          <span className="text-zinc-300">›</span>
+          <span className="text-[#cc4224]">Checkout</span>
+          <span className="text-zinc-300">›</span>
+          <span>Payment</span>
         </div>
+      </div>
 
-        {/* Right Column: Payment & Summary */}
-        <div className="w-full lg:w-1/3 space-y-6">
+      <div className="max-w-[1200px] mx-auto px-8">
+        <form action={createTransaction} className="flex flex-col lg:flex-row gap-8 items-start">
           
-          <div className="bg-white border border-zinc-200 rounded-xl p-6 shadow-sm">
-            <h2 className="text-[16px] font-bold text-zinc-900 mb-4">Metode Pembayaran</h2>
+          {/* Left Column: Forms */}
+          <div className="w-full lg:w-[65%] space-y-8">
             
-            <div className="space-y-3">
-              {/* Virtual Account */}
-              <label className="flex items-center justify-between border-2 p-4 rounded-xl cursor-pointer transition-colors has-[:checked]:border-[#cc4224] has-[:checked]:bg-[#fdf5f3] border-zinc-200 bg-white hover:border-zinc-300">
-                <div className="flex items-center gap-3">
-                  <input type="radio" name="payment" value="Virtual Account" className="w-4 h-4 accent-[#cc4224]" defaultChecked />
-                  <Building2 className="w-5 h-5 text-[#cc4224]" />
-                  <span className="text-[14px] font-bold text-zinc-900">Virtual Account</span>
-                </div>
-                <div className="w-8 h-4 bg-[url('https://upload.wikimedia.org/wikipedia/commons/5/5c/Bank_Central_Asia.svg')] bg-contain bg-no-repeat bg-center"></div>
-              </label>
-              
-              {/* Credit Card */}
-              <label className="flex items-center justify-between border-2 p-4 rounded-xl cursor-pointer transition-colors has-[:checked]:border-[#cc4224] has-[:checked]:bg-[#fdf5f3] border-zinc-200 bg-white hover:border-zinc-300">
-                <div className="flex items-center gap-3">
-                  <input type="radio" name="payment" value="Kartu Kredit" className="w-4 h-4 accent-[#cc4224]" />
-                  <CreditCard className="w-5 h-5 text-zinc-500" />
-                  <span className="text-[14px] font-bold text-zinc-900">Kartu Kredit</span>
-                </div>
-                <div className="flex gap-1">
-                   <div className="w-6 h-4 bg-zinc-200 rounded"></div>
-                   <div className="w-6 h-4 bg-zinc-200 rounded"></div>
-                </div>
-              </label>
-            </div>
-          </div>
-
-          <div className="bg-white border border-zinc-200 rounded-xl p-6 shadow-sm">
-            <h2 className="text-[16px] font-bold text-zinc-900 mb-4 pb-4 border-b border-zinc-100">Ringkasan Pesanan</h2>
-            
-            <div className="space-y-6 mb-6">
-              {cartItems.map((item) => (
-                <div key={item.id} className="flex gap-4">
-                  <div className="w-16 h-16 bg-zinc-100 rounded-lg overflow-hidden border border-zinc-200 shrink-0">
-                    <div 
-                      className="w-full h-full bg-cover bg-center opacity-80 mix-blend-multiply"
-                      style={{ backgroundImage: `url(${item.product.imageUrl || 'https://images.unsplash.com/photo-1621252179022-297eb0981e64?q=80'})` }}
-                    ></div>
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-[14px] font-bold text-zinc-900">{item.product.name}</h3>
-                    <p className="text-[12px] text-zinc-500 mt-1 mb-2">{item.quantity.toLocaleString("id-ID")} Pcs • Rp {item.product.price.toLocaleString("id-ID")}/pcs</p>
-                    <p className="text-[14px] font-bold text-zinc-900">Rp {(item.product.price * item.quantity).toLocaleString("id-ID")}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="space-y-4 mb-6">
-              <div className="flex justify-between items-center text-[13px]">
-                <span className="text-zinc-500">Subtotal ({cartItems.length} produk)</span>
-                <span className="font-semibold text-zinc-900">Rp {subtotal.toLocaleString("id-ID")}</span>
+            {/* Shipping Information Box */}
+            <div className="bg-white border border-zinc-200 rounded-xl p-6 shadow-sm">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-[18px] font-bold text-zinc-900 tracking-tight">Shipping Information</h2>
+                <Link href="?modal=address" scroll={false} className="text-[12px] font-bold text-[#cc4224] border border-[#cc4224] px-4 py-2 rounded hover:bg-[#fdf5f3] transition-colors">
+                  + Add New Address
+                </Link>
               </div>
-              <div className="flex justify-between items-center text-[13px]">
-                <span className="text-zinc-500">Biaya Pengiriman (LTL)</span>
-                <span className="font-semibold text-zinc-900">Rp {shippingCost.toLocaleString("id-ID")}</span>
-              </div>
-              <div className="flex justify-between items-center text-[13px]">
-                <span className="text-zinc-500">PPN (11%)</span>
-                <span className="font-semibold text-zinc-900">Rp {ppn.toLocaleString("id-ID")}</span>
-              </div>
-            </div>
-            
-            <div className="flex justify-between items-end pt-4 border-t border-zinc-200 mb-6">
-              <span className="text-[14px] font-bold text-zinc-900">Total Tagihan</span>
-              <span className="text-[20px] font-bold text-[#cc4224] tracking-tight">Rp {total.toLocaleString("id-ID")}</span>
-            </div>
-            
-            <button type="submit" className="w-full py-4 bg-[#cc4224] text-white font-bold text-[15px] rounded-lg hover:bg-[#b0351b] transition-colors shadow-sm flex items-center justify-center gap-2">
-              Bayar Sekarang
-              <ChevronRight className="w-4 h-4" />
-            </button>
-            <p className="text-[11px] text-center text-zinc-400 mt-3 flex items-center justify-center gap-1">
-              Pembayaran aman dan terenkripsi <span className="w-3 h-3 bg-zinc-300 rounded-full inline-block"></span>
-            </p>
-          </div>
-
-        </div>
-        
-      </form>
-
-      {/* Tambah Alamat Modal */}
-      {showModal === 'address' && (
-        <div className="fixed inset-0 bg-zinc-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-[500px] overflow-hidden animate-in fade-in zoom-in duration-200">
-            <div className="p-6 border-b border-zinc-100 flex justify-between items-center bg-zinc-50">
-              <div>
-                <h2 className="text-[18px] font-bold text-zinc-900">Ubah Alamat Pengiriman</h2>
-                <p className="text-[12px] text-zinc-500 mt-0.5">Pilih atau tambahkan alamat baru.</p>
-              </div>
-              <Link href="/dashboard/checkout" scroll={false} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-zinc-200 text-zinc-400 transition-colors">
-                ✕
-              </Link>
-            </div>
-            
-            <div className="p-6 max-h-[60vh] overflow-y-auto space-y-4 bg-zinc-50/50">
-              {/* Existing Addresses */}
-              {userAddresses.length > 0 ? (
-                userAddresses.map(address => (
-                  <label key={address.id} className="flex items-start gap-3 p-4 rounded-xl cursor-pointer transition-colors border-2 has-[:checked]:border-[#cc4224] has-[:checked]:bg-[#fdf5f3] border-zinc-200 bg-white hover:border-zinc-300">
-                    <input type="radio" name="selected_address" value={address.id} className="w-4 h-4 mt-1 accent-[#cc4224]" defaultChecked={address.isDefault || false} />
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-[14px] font-bold text-zinc-900">{address.label}</span>
-                        {address.isDefault && (
-                          <span className="text-[10px] font-black bg-[#cc4224] text-white px-2 py-0.5 rounded uppercase tracking-wider">Utama</span>
-                        )}
-                      </div>
-                      <p className="text-[13px] font-bold text-zinc-900 mb-1">{address.recipientName} ({address.phone})</p>
-                      <p className="text-[13px] text-zinc-600 leading-relaxed">
-                        {address.fullAddress}, {address.district}, {address.city}, {address.province} {address.postalCode}
+              <HorizontalScrollContainer className="flex overflow-x-auto gap-4 pb-4 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-track]:bg-zinc-100 [&::-webkit-scrollbar-thumb]:bg-zinc-300 [&::-webkit-scrollbar-thumb]:rounded-full">
+                {userAddresses.length > 0 ? (
+                  userAddresses.map((addr) => (
+                    <label key={addr.id} className="w-[320px] shrink-0 border-2 rounded-lg p-5 cursor-pointer bg-white transition-colors border-zinc-200 hover:border-zinc-300 has-[:checked]:border-[#cc4224] has-[:checked]:bg-[#fdf5f3]/30 relative block">
+                      <input type="radio" name="addressId" value={addr.id} className="peer hidden" defaultChecked={addr.id === defaultAddress?.id} />
+                      <div className="absolute top-5 right-5 w-4 h-4 rounded-full border-2 border-zinc-300 peer-checked:border-4 peer-checked:border-[#cc4224] bg-white transition-all"></div>
+                      <span className={`inline-block px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded mb-3 ${addr.isDefault ? 'bg-[#cc4224]/10 text-[#cc4224]' : 'bg-zinc-100 text-zinc-500'}`}>
+                        {addr.label || (addr.isDefault ? 'Primary' : 'Address')}
+                      </span>
+                      <p className="text-[13px] font-bold text-zinc-900 mb-2">{addr.recipientName}</p>
+                      <p className="text-[12px] text-zinc-600 leading-relaxed mb-4 pr-6 min-h-[55px]">
+                        {addr.fullAddress}, {addr.district}<br/>
+                        {addr.city}, {addr.province} {addr.postalCode}<br/>
+                        Indonesia
                       </p>
-                    </div>
-                  </label>
-                ))
-              ) : (
-                <div className="text-center py-4 text-zinc-500 text-sm">
-                  Anda belum menambahkan alamat satupun.
-                </div>
-              )}
+                      <p className="text-[12px] font-medium text-zinc-900">{addr.phone}</p>
+                    </label>
+                  ))
+                ) : (
+                  <div className="w-full border-2 border-dashed border-zinc-200 rounded-lg p-5 text-center">
+                    <p className="text-[13px] font-bold text-zinc-900 mb-2">{session.userName}</p>
+                    <p className="text-[12px] text-zinc-600 leading-relaxed">
+                      Belum ada alamat pengiriman. Silakan tambah alamat baru.
+                    </p>
+                  </div>
+                )}
+              </HorizontalScrollContainer>
+            </div>
 
-              <div className="relative py-4">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-zinc-200"></div>
-                </div>
-                <div className="relative flex justify-center">
-                  <span className="bg-zinc-50/50 px-2 text-[12px] text-zinc-400 font-bold uppercase tracking-wider">Atau</span>
-                </div>
+            {/* Payment Method Box */}
+            <div className="bg-white border border-zinc-200 rounded-xl p-6 shadow-sm">
+              <h2 className="text-[18px] font-bold text-zinc-900 tracking-tight mb-6">Payment Method</h2>
+              
+              <div className="space-y-4 mb-6">
+                
+                {/* Method 1 */}
+                <label className="flex items-center gap-4 p-5 border-2 rounded-lg cursor-pointer bg-white transition-colors border-zinc-200 hover:border-zinc-300 has-[:checked]:border-[#cc4224] has-[:checked]:bg-[#fdf5f3]/20">
+                  <input type="radio" name="payment" value="Virtual Account" className="w-4 h-4 accent-[#cc4224]" defaultChecked />
+                  <div className="w-10 h-10 bg-zinc-100 flex items-center justify-center rounded shrink-0">
+                    <Building2 className="w-5 h-5 text-zinc-700" />
+                  </div>
+                  <div>
+                    <p className="text-[14px] font-bold text-zinc-900">Bank Transfer (Virtual Account)</p>
+                    <p className="text-[12px] text-zinc-500 mt-0.5">BCA, Mandiri, BNI, or BRI. Automatic verification.</p>
+                  </div>
+                </label>
+
+                {/* Method 2 */}
+                <label className="flex items-center gap-4 p-5 border-2 rounded-lg cursor-pointer bg-white transition-colors border-zinc-200 hover:border-zinc-300 has-[:checked]:border-[#cc4224] has-[:checked]:bg-[#fdf5f3]/20">
+                  <input type="radio" name="payment" value="Credit Card" className="w-4 h-4 accent-[#cc4224]" />
+                  <div className="w-10 h-10 bg-zinc-100 flex items-center justify-center rounded shrink-0">
+                    <CreditCard className="w-5 h-5 text-zinc-700" />
+                  </div>
+                  <div>
+                    <p className="text-[14px] font-bold text-zinc-900">Credit / Debit Card</p>
+                    <p className="text-[12px] text-zinc-500 mt-0.5">Visa, Mastercard, or JCB. Secured by 256-bit encryption.</p>
+                  </div>
+                </label>
+
+                {/* Method 3 */}
+                <label className="flex items-center gap-4 p-5 border-2 rounded-lg cursor-pointer bg-white transition-colors border-zinc-200 hover:border-zinc-300 has-[:checked]:border-[#cc4224] has-[:checked]:bg-[#fdf5f3]/20">
+                  <input type="radio" name="payment" value="E-Wallet" className="w-4 h-4 accent-[#cc4224]" />
+                  <div className="w-10 h-10 bg-zinc-100 flex items-center justify-center rounded shrink-0">
+                    <Wallet className="w-5 h-5 text-zinc-700" />
+                  </div>
+                  <div>
+                    <p className="text-[14px] font-bold text-zinc-900">E-Wallet</p>
+                    <p className="text-[12px] text-zinc-500 mt-0.5">GoPay, OVO, or Dana. Fast one-click payment.</p>
+                  </div>
+                </label>
               </div>
 
-              {/* Form Tambah Alamat */}
-              <div className="space-y-4">
-                <h3 className="text-[14px] font-bold text-zinc-900 mb-2">Tambah Alamat Baru</h3>
+              {/* Secure Info */}
+              <div className="bg-slate-50 border-l-4 border-slate-300 rounded-r-lg p-4 flex gap-3 items-start">
+                <Lock className="w-4 h-4 text-slate-500 shrink-0 mt-0.5" />
+                <p className="text-[11px] text-slate-600 leading-relaxed">
+                  Your transaction is 100% secure. We utilize industry-standard TLS encryption to protect your financial data and never store your full card details on our servers.
+                </p>
+              </div>
+            </div>
+
+          </div>
+
+          {/* Right Column: Dark Order Summary */}
+          <div className="w-full lg:w-[35%]">
+            <div className="bg-[#111827] rounded-xl shadow-xl overflow-hidden sticky top-[104px]">
+              
+              <div className="p-8">
+                <h2 className="text-[18px] font-bold text-white tracking-tight mb-8">Your Order</h2>
                 
-                <div>
-                  <label className="block text-[12px] font-bold text-zinc-700 mb-1.5">Label Alamat</label>
-                  <input type="text" placeholder="Contoh: Gudang 2" className="w-full px-3 py-2.5 bg-white border border-zinc-200 rounded-lg text-[13px] focus:outline-none focus:border-[#cc4224]" />
+                {/* Items List */}
+                <div className="space-y-6 mb-8">
+                  {cartItems.map((item) => (
+                    <div key={item.id} className="flex gap-4">
+                      <div className="w-16 h-16 bg-white/10 rounded overflow-hidden shrink-0">
+                        <div 
+                          className="w-full h-full bg-cover bg-center mix-blend-screen opacity-90"
+                          style={{ backgroundImage: `url(${item.product.imageUrl || 'https://images.unsplash.com/photo-1621252179022-297eb0981e64?q=80'})` }}
+                        ></div>
+                      </div>
+                      <div className="flex-1 text-white">
+                        <h3 className="text-[13px] font-bold leading-snug mb-1">{item.product.name}</h3>
+                        <p className="text-[11px] text-zinc-400 mb-1.5">{item.product.material || 'Standard'} | {item.quantity}pcs</p>
+                        <p className="text-[13px] font-bold">IDR {(item.product.price * item.quantity).toLocaleString("id-ID")}</p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-[12px] font-bold text-zinc-700 mb-1.5">Nama Penerima</label>
-                    <input type="text" placeholder="Nama Lengkap" className="w-full px-3 py-2.5 bg-white border border-zinc-200 rounded-lg text-[13px] focus:outline-none focus:border-[#cc4224]" />
+
+                {/* Calculation */}
+                <div className="space-y-3 mb-6 pt-6 border-t border-white/10">
+                  <div className="flex justify-between items-center text-[13px]">
+                    <span className="text-zinc-400">Subtotal</span>
+                    <span className="font-semibold text-zinc-300">IDR {subtotal.toLocaleString("id-ID")}</span>
                   </div>
-                  <div>
-                    <label className="block text-[12px] font-bold text-zinc-700 mb-1.5">No. Telepon</label>
-                    <input type="text" placeholder="08..." className="w-full px-3 py-2.5 bg-white border border-zinc-200 rounded-lg text-[13px] focus:outline-none focus:border-[#cc4224]" />
+                  <div className="flex justify-between items-center text-[13px]">
+                    <span className="text-zinc-400">Shipping (Express)</span>
+                    <span className="font-semibold text-zinc-300">IDR {shippingCost.toLocaleString("id-ID")}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-[13px]">
+                    <span className="text-zinc-400">Tax (VAT 11%)</span>
+                    <span className="font-semibold text-zinc-300">IDR {ppn.toLocaleString("id-ID")}</span>
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-[12px] font-bold text-zinc-700 mb-1.5">Alamat Lengkap</label>
-                  <textarea rows={3} placeholder="Nama jalan, gedung, no. rumah" className="w-full px-3 py-2.5 bg-white border border-zinc-200 rounded-lg text-[13px] focus:outline-none focus:border-[#cc4224] resize-none"></textarea>
+                {/* Total */}
+                <div className="flex justify-between items-center pt-6 border-t border-white/10 mb-8">
+                  <span className="text-[14px] font-bold text-zinc-300">Total<br/>Amount</span>
+                  <div className="text-right">
+                    <span className="text-[14px] font-bold text-white mr-1.5">IDR</span>
+                    <span className="text-[26px] font-bold text-white tracking-tight">{total.toLocaleString("id-ID")}</span>
+                  </div>
                 </div>
+
+                {/* Promo Code Input Dark */}
+                <div className="flex gap-2 mb-8 p-1 bg-white/5 rounded-lg border border-white/10 focus-within:border-white/30 transition-colors">
+                  <input type="text" placeholder="Promo Code" className="flex-1 bg-transparent px-3 py-1.5 text-[13px] text-white placeholder-zinc-500 focus:outline-none" />
+                  <button type="button" className="px-4 py-1.5 bg-[#cc4224] text-white text-[12px] font-bold rounded hover:bg-[#b0351b] transition-colors">Apply</button>
+                </div>
+
+                {/* Pay Button */}
+                <button type="submit" className="w-full py-4 bg-[#cc4224] hover:bg-[#b0351b] text-white font-bold text-[15px] rounded-lg transition-colors flex items-center justify-center gap-2 shadow-lg shadow-[#cc4224]/20 mb-6">
+                  <Lock className="w-4 h-4" />
+                  Pay Now
+                </button>
+
+                <p className="text-center text-[9px] font-bold tracking-widest text-zinc-500 uppercase">
+                  Secured by PT Duta Mitra Luhur Payment Gateway
+                </p>
               </div>
             </div>
             
-            <div className="p-6 border-t border-zinc-100 flex justify-end gap-3 bg-white">
-              <Link href="/dashboard/checkout" scroll={false} className="px-6 py-2.5 bg-white border border-zinc-300 text-zinc-700 font-bold text-[13px] rounded-lg hover:bg-zinc-50 transition-colors">
-                Batal
-              </Link>
-              <Link href="/dashboard/checkout" scroll={false} className="px-6 py-2.5 bg-[#cc4224] text-white font-bold text-[13px] rounded-lg hover:bg-[#b0351b] transition-colors shadow-sm">
-                Simpan Alamat
-              </Link>
+            <div className="text-center mt-6">
+              <p className="text-[12px] text-zinc-600">Need assistance? <Link href="/dashboard/complaints" className="text-[#cc4224] hover:underline">Contact Support</Link></p>
             </div>
           </div>
-        </div>
-      )}
 
+        </form>
+      </div>
+
+      {/* Modal Overlay */}
+      {showModal === "address" && <CheckoutAddressModal />}
     </div>
   );
 }
