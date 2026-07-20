@@ -1,285 +1,213 @@
+"use client"
+
 import { 
-  Zap, 
   Download,
-  Settings as SettingsIcon,
-  PenTool,
+  Settings2,
+  Microscope,
   Factory,
-  Truck
+  Truck,
+  ArrowUp
 } from "lucide-react"
+import Link from "next/link"
 
 export default function AdminDashboardPage() {
   return (
-    <div className="space-y-6">
-      {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Executive Summary</h1>
-          <p className="text-gray-500 mt-1">Real-time overview for <span className="font-medium text-gray-700">September 14, 2023</span></p>
-        </div>
-        <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-md border border-gray-300 transition-colors shadow-sm">
-            <Zap className="w-4 h-4 text-orange-500 fill-orange-500" />
-            Buat Akun
-          </button>
-          <button className="flex items-center gap-2 px-4 py-2 bg-[#0f172a] hover:bg-slate-800 text-white font-semibold rounded-md transition-colors shadow-sm">
-            <Download className="w-4 h-4" />
-            Export PDF
-          </button>
-        </div>
-      </div>
-
-      {/* Top Widgets Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Sales Performance Card */}
-        <div className="lg:col-span-2 bg-white rounded-xl border border-gray-200 shadow-sm p-6 flex flex-col">
-          <div className="flex justify-between items-start mb-6">
-            <h2 className="text-xl font-bold text-gray-900">Sales Performance</h2>
-            <div className="flex items-center bg-gray-100 p-1 rounded-md text-sm font-medium text-gray-500">
-              <button className="px-3 py-1 bg-white text-gray-900 rounded shadow-sm">Week</button>
-              <button className="px-3 py-1 hover:text-gray-900">Month</button>
-              <button className="px-3 py-1 hover:text-gray-900">Year</button>
-            </div>
-          </div>
-          
-          <div className="flex-1 min-h-[240px] flex items-end relative">
-            {/* Placeholder for chart */}
-            <div className="w-full flex justify-between text-xs text-gray-400 font-medium px-4 mt-auto">
-              <span>Mon</span>
-              <span>Tue</span>
-              <span>Wed</span>
-              <span>Thu</span>
-              <span>Fri</span>
-              <span>Sat</span>
-              <span>Sun</span>
-            </div>
+    <div className="max-w-[1200px] mx-auto animate-in fade-in duration-500 pb-12">
+      
+      {/* Top Metrics Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-8">
+        {/* Active Productions */}
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 flex flex-col justify-between h-[120px]">
+          <h3 className="text-[13px] font-bold text-gray-500 uppercase tracking-wider mb-2">Active<br/>Productions</h3>
+          <div className="flex items-baseline gap-2 mt-auto">
+            <span className="text-[28px] font-medium text-gray-900 leading-none">24</span>
+            <span className="text-sm font-bold text-[#c2410c]">+2 this week</span>
           </div>
         </div>
 
-        {/* Right Column Stack */}
-        <div className="flex flex-col gap-6">
-          {/* Today's Orders */}
-          <div className="bg-[#1e293b] rounded-xl text-white p-6 relative overflow-hidden shadow-sm">
-            <h3 className="text-sm font-semibold text-slate-300 tracking-wider uppercase mb-2">Today's Orders</h3>
-            <div className="text-5xl font-bold mb-8 tracking-tighter">42</div>
-            
-            <div className="flex justify-between items-end">
-              <div>
-                <p className="text-xs font-semibold text-slate-400 mb-1">B2B (Direct)</p>
-                <p className="text-2xl font-bold text-slate-200">18</p>
-              </div>
-              <div className="w-px h-10 bg-slate-700 mx-4"></div>
-              <div>
-                <p className="text-xs font-semibold text-slate-400 mb-1">B2C (Store)</p>
-                <p className="text-2xl font-bold text-slate-200">24</p>
-              </div>
-            </div>
-            
-            {/* Decorative element like in the image */}
-            <div className="absolute right-4 bottom-4 flex gap-1 opacity-20">
-              <div className="w-3 h-3 bg-white rounded-sm mt-3"></div>
-              <div className="w-3 h-6 bg-white rounded-sm"></div>
-            </div>
+        {/* Open RFQs */}
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 flex flex-col justify-between h-[120px]">
+          <h3 className="text-[13px] font-bold text-gray-500 uppercase tracking-wider mb-2">Open RFQs</h3>
+          <div className="flex items-baseline gap-2 mt-auto">
+            <span className="text-[28px] font-medium text-gray-900 leading-none">12</span>
+            <span className="text-sm font-bold text-gray-500">Pending Review</span>
           </div>
+        </div>
 
-          {/* Payment Status */}
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 flex-1">
-            <h3 className="text-sm font-bold text-gray-900 mb-6">Payment Status</h3>
-            
-            <div className="space-y-5">
-              {/* Paid */}
-              <div>
-                <div className="flex justify-between text-sm font-semibold mb-2">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                    <span className="text-gray-700">Paid</span>
-                  </div>
-                  <span className="text-gray-900">78%</span>
-                </div>
-                <div className="w-full bg-gray-100 rounded-full h-2">
-                  <div className="bg-green-500 h-2 rounded-full" style={{ width: '78%' }}></div>
-                </div>
-              </div>
+        {/* Efficiency Rate */}
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 flex flex-col justify-between h-[120px]">
+          <h3 className="text-[13px] font-bold text-gray-500 uppercase tracking-wider mb-2">Efficiency Rate</h3>
+          <div className="flex items-center gap-2 mt-auto">
+            <span className="text-[28px] font-medium text-gray-900 leading-none">94.2%</span>
+            <span className="flex items-center text-sm font-bold text-emerald-600">
+              <ArrowUp className="w-3.5 h-3.5 mr-0.5" strokeWidth={3} />
+              0.4%
+            </span>
+          </div>
+        </div>
 
-              {/* Pending */}
-              <div>
-                <div className="flex justify-between text-sm font-semibold mb-2">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-[#d93f21]"></div>
-                    <span className="text-gray-700">Pending</span>
-                  </div>
-                  <span className="text-gray-900">15%</span>
-                </div>
-                <div className="w-full bg-gray-100 rounded-full h-2">
-                  <div className="bg-[#d93f21] h-2 rounded-full" style={{ width: '15%' }}></div>
-                </div>
-              </div>
-
-              {/* Overdue */}
-              <div>
-                <div className="flex justify-between text-sm font-semibold mb-2">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-red-600"></div>
-                    <span className="text-gray-700">Overdue</span>
-                  </div>
-                  <span className="text-gray-900">7%</span>
-                </div>
-                <div className="w-full bg-gray-100 rounded-full h-2">
-                  <div className="bg-red-600 h-2 rounded-full" style={{ width: '7%' }}></div>
-                </div>
-              </div>
-            </div>
+        {/* Quality Assurance */}
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 flex flex-col justify-between h-[120px]">
+          <h3 className="text-[13px] font-bold text-gray-500 uppercase tracking-wider mb-2">Quality<br/>Assurance</h3>
+          <div className="flex items-baseline gap-2 mt-auto">
+            <span className="text-[28px] font-medium text-gray-900 leading-none">99.8%</span>
+            <span className="text-sm font-bold text-gray-500">Tolerance met</span>
           </div>
         </div>
       </div>
 
-      {/* Live Incoming Orders Table */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-        <div className="p-6 border-b border-gray-200 flex justify-between items-center">
-          <h2 className="text-xl font-bold text-gray-900">Live Incoming Orders</h2>
-          <button className="text-sm font-semibold text-[#b73719] hover:text-[#d93f21]">View All Orders</button>
-        </div>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-gray-100/80 text-gray-500 font-bold">
-              <tr>
-                <th className="px-6 py-4 tracking-wider">ORDER ID</th>
-                <th className="px-6 py-4 tracking-wider">CLIENT / ENTITY</th>
-                <th className="px-6 py-4 tracking-wider">TYPE</th>
-                <th className="px-6 py-4 tracking-wider">CATEGORY</th>
-                <th className="px-6 py-4 tracking-wider text-right">AMOUNT</th>
-                <th className="px-6 py-4 tracking-wider text-right">STATUS</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              <tr className="hover:bg-gray-50 transition-colors group">
-                <td className="px-6 py-5 font-bold text-gray-900">#DML-2023-981</td>
-                <td className="px-6 py-5">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded bg-[#1e293b] text-white flex items-center justify-center font-bold text-xs">IN</div>
-                    <div>
-                      <div className="font-bold text-gray-900">Indo Rubber Corp</div>
-                      <div className="text-xs text-gray-500 font-medium mt-0.5">Enterprise B2B</div>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-6 py-5">
-                  <span className="inline-flex items-center px-2 py-1 rounded bg-gray-200 text-gray-700 text-xs font-bold tracking-wider">BULK</span>
-                </td>
-                <td className="px-6 py-5 text-gray-700 font-medium">Molding</td>
-                <td className="px-6 py-5 text-right font-bold text-gray-900">Rp 145,200,000</td>
-                <td className="px-6 py-5 text-right">
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-100 text-green-700 text-xs font-bold tracking-wider">
-                    <span className="w-1.5 h-1.5 rounded-full bg-green-600"></span>
-                    PAID
-                  </span>
-                </td>
-              </tr>
+        {/* Main Content Area (Left) */}
+        <div className="lg:col-span-8 flex flex-col gap-8">
+          
+          {/* Manufacturing Pipeline Card */}
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-8">
+            <div className="flex items-center justify-between mb-12">
+              <h2 className="text-[17px] font-medium text-gray-800">Manufacturing Pipeline</h2>
+              <button className="flex items-center gap-2 px-5 py-2.5 bg-black hover:bg-gray-900 text-white text-sm font-medium rounded-md transition-colors shadow-sm">
+                <Download className="w-4 h-4" />
+                Export Report
+              </button>
+            </div>
+
+            <div className="flex flex-col sm:flex-row justify-between items-center relative max-w-2xl mx-auto mb-4">
+              {/* Connecting Line */}
+              <div className="hidden sm:block absolute top-[22px] left-8 right-8 h-1 bg-gray-200 -z-10 rounded-full"></div>
               
-              <tr className="hover:bg-gray-50 transition-colors group">
-                <td className="px-6 py-5 font-bold text-gray-900">#DML-2023-982</td>
-                <td className="px-6 py-5">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded bg-orange-500 text-white flex items-center justify-center font-bold text-xs">RT</div>
-                    <div>
-                      <div className="font-bold text-gray-900">Adi Wijaya</div>
-                      <div className="text-xs text-gray-500 font-medium mt-0.5">Retail B2C</div>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-6 py-5">
-                  <span className="inline-flex items-center px-2 py-1 rounded bg-gray-200 text-gray-700 text-xs font-bold tracking-wider">UNIT</span>
-                </td>
-                <td className="px-6 py-5 text-gray-700 font-medium">Extrusion</td>
-                <td className="px-6 py-5 text-right font-bold text-gray-900">Rp 2,450,000</td>
-                <td className="px-6 py-5 text-right">
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-orange-100 text-orange-700 text-xs font-bold tracking-wider">
-                    <span className="w-1.5 h-1.5 rounded-full bg-orange-600"></span>
-                    PENDING
-                  </span>
-                </td>
-              </tr>
+              {/* Design */}
+              <div className="flex flex-col items-center gap-3 bg-white z-10 w-24">
+                <div className="w-12 h-12 rounded-full bg-[#c2410c] flex items-center justify-center text-white shadow-sm ring-8 ring-white">
+                  <Settings2 className="w-5 h-5" />
+                </div>
+                <div className="text-center mt-1">
+                  <div className="font-medium text-gray-900 text-[15px]">Design</div>
+                  <div className="text-sm font-medium text-gray-500 mt-1">4 Active</div>
+                </div>
+              </div>
 
-              <tr className="hover:bg-gray-50 transition-colors group">
-                <td className="px-6 py-5 font-bold text-gray-900">#DML-2023-983</td>
-                <td className="px-6 py-5">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded bg-black text-white flex items-center justify-center font-bold text-xs">TL</div>
-                    <div>
-                      <div className="font-bold text-gray-900">Tunas Logistik PT</div>
-                      <div className="text-xs text-gray-500 font-medium mt-0.5">Regular B2B</div>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-6 py-5">
-                  <span className="inline-flex items-center px-2 py-1 rounded bg-gray-200 text-gray-700 text-xs font-bold tracking-wider">BATCH</span>
-                </td>
-                <td className="px-6 py-5 text-gray-700 font-medium">Custom Seal</td>
-                <td className="px-6 py-5 text-right font-bold text-gray-900">Rp 67,800,000</td>
-                <td className="px-6 py-5 text-right">
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-100 text-green-700 text-xs font-bold tracking-wider">
-                    <span className="w-1.5 h-1.5 rounded-full bg-green-600"></span>
-                    PAID
-                  </span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+              {/* Prototype */}
+              <div className="flex flex-col items-center gap-3 bg-white z-10 w-24 mt-6 sm:mt-0">
+                <div className="w-12 h-12 rounded-full bg-[#c2410c] flex items-center justify-center text-white shadow-sm ring-8 ring-white">
+                  <Microscope className="w-5 h-5" />
+                </div>
+                <div className="text-center mt-1">
+                  <div className="font-medium text-gray-900 text-[15px]">Prototype</div>
+                  <div className="text-sm font-medium text-gray-500 mt-1">2 Active</div>
+                </div>
+              </div>
 
-      {/* Manufacturing Lifecycle Load */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-        <h3 className="text-sm font-bold text-gray-900 mb-8">Manufacturing Lifecycle Load</h3>
-        
-        <div className="flex flex-col sm:flex-row justify-between items-center px-4 md:px-12 relative">
-          {/* Connecting Line */}
-          <div className="hidden sm:block absolute top-7 left-12 right-12 h-px bg-gray-200 -z-10"></div>
-          
-          {/* Design */}
-          <div className="flex flex-col items-center gap-3 bg-white z-10 w-32">
-            <div className="w-14 h-14 rounded-full bg-[#1e293b] flex items-center justify-center text-white border-[6px] border-white shadow-sm">
-              <SettingsIcon className="w-5 h-5" />
-            </div>
-            <div className="text-center">
-              <div className="font-bold text-gray-900 text-sm">Design</div>
-              <div className="text-xs font-bold text-[#b73719] mt-1">12 Projects</div>
+              {/* Production */}
+              <div className="flex flex-col items-center gap-3 bg-white z-10 w-24 mt-6 sm:mt-0">
+                <div className="w-12 h-12 rounded-full bg-[#334155] flex items-center justify-center text-white shadow-sm ring-8 ring-white">
+                  <Factory className="w-5 h-5" />
+                </div>
+                <div className="text-center mt-1">
+                  <div className="font-medium text-gray-900 text-[15px]">Production</div>
+                  <div className="text-sm font-medium text-gray-500 mt-1">12 Active</div>
+                </div>
+              </div>
+
+              {/* Logistics */}
+              <div className="flex flex-col items-center gap-3 bg-white z-10 w-24 mt-6 sm:mt-0 opacity-50">
+                <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 shadow-sm ring-8 ring-white">
+                  <Truck className="w-5 h-5" />
+                </div>
+                <div className="text-center mt-1">
+                  <div className="font-medium text-gray-400 text-[15px]">Logistics</div>
+                  <div className="text-sm font-medium text-gray-400 mt-1">Queue Empty</div>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Prototyping */}
-          <div className="flex flex-col items-center gap-3 bg-white z-10 w-32 mt-6 sm:mt-0">
-            <div className="w-14 h-14 rounded-full bg-black flex items-center justify-center text-white border-[6px] border-white shadow-sm">
-              <PenTool className="w-5 h-5" />
-            </div>
-            <div className="text-center">
-              <div className="font-bold text-gray-900 text-sm">Prototyping</div>
-              <div className="text-xs font-bold text-[#d93f21] mt-1">5 Active</div>
-            </div>
-          </div>
+          {/* Table */}
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead className="bg-[#fcfcfd] border-b border-gray-100 text-gray-900 font-bold">
+                  <tr>
+                    <th className="px-6 py-5 w-[140px]">ID</th>
+                    <th className="px-6 py-5">Client</th>
+                    <th className="px-6 py-5">Product<br/>Line</th>
+                    <th className="px-6 py-5 text-center">Status</th>
+                    <th className="px-6 py-5">Completion</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  <tr className="hover:bg-gray-50 transition-colors">
+                    <td className="px-6 py-5 font-medium text-gray-600">#DML-<br/>8921</td>
+                    <td className="px-6 py-5 font-medium text-gray-900">AutoCorp<br/>Gmbh</td>
+                    <td className="px-6 py-5 font-medium text-gray-700">Vibration<br/>Mounts</td>
+                    <td className="px-6 py-5 text-center">
+                      <span className="inline-flex items-center px-3 py-1 rounded-full bg-[#ffedd5] text-[#c2410c] text-[11px] font-bold tracking-wide">
+                        Processing
+                      </span>
+                    </td>
+                    <td className="px-6 py-5 font-medium text-gray-900">65%</td>
+                  </tr>
+                  
+                  <tr className="hover:bg-gray-50 transition-colors">
+                    <td className="px-6 py-5 font-medium text-gray-600">#DML-<br/>8919</td>
+                    <td className="px-6 py-5 font-medium text-gray-900">Global<br/>Hydraulics</td>
+                    <td className="px-6 py-5 font-medium text-gray-700">Sealing<br/>Gaskets</td>
+                    <td className="px-6 py-5 text-center">
+                      <span className="inline-flex items-center px-3 py-1 rounded-full bg-green-100 text-green-700 text-[11px] font-bold tracking-wide">
+                        Shipped
+                      </span>
+                    </td>
+                    <td className="px-6 py-5 font-medium text-gray-900">100%</td>
+                  </tr>
 
-          {/* Production */}
-          <div className="flex flex-col items-center gap-3 bg-white z-10 w-32 mt-6 sm:mt-0">
-            <div className="w-14 h-14 rounded-full bg-[#d93f21] flex items-center justify-center text-white border-[6px] border-white shadow-sm">
-              <Factory className="w-5 h-5" />
-            </div>
-            <div className="text-center">
-              <div className="font-bold text-gray-900 text-sm">Production</div>
-              <div className="text-xs font-bold text-[#b73719] mt-1">28 Batches</div>
-            </div>
-          </div>
-
-          {/* Delivery */}
-          <div className="flex flex-col items-center gap-3 bg-white z-10 w-32 mt-6 sm:mt-0">
-            <div className="w-14 h-14 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 border-[6px] border-white shadow-sm">
-              <Truck className="w-5 h-5" />
-            </div>
-            <div className="text-center">
-              <div className="font-bold text-gray-900 text-sm">Delivery</div>
-              <div className="text-xs font-medium text-gray-500 mt-1">Scheduled</div>
+                  <tr className="hover:bg-gray-50 transition-colors">
+                    <td className="px-6 py-5 font-medium text-gray-600">#DML-<br/>8914</td>
+                    <td className="px-6 py-5 font-medium text-gray-900">Nexo<br/>Energy</td>
+                    <td className="px-6 py-5 font-medium text-gray-700">Custom<br/>Extrusion</td>
+                    <td className="px-6 py-5 text-center">
+                      <span className="inline-flex items-center px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-[11px] font-bold tracking-wide">
+                        Design
+                      </span>
+                    </td>
+                    <td className="px-6 py-5 font-medium text-gray-900">12%</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
+
+        {/* Live Feed Card (Right) */}
+        <div className="lg:col-span-4">
+          <div className="relative h-[650px] rounded-2xl overflow-hidden shadow-md group">
+            {/* Background Image Placeholder */}
+            <div className="absolute inset-0 bg-[#1e293b]">
+               <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=800&auto=format&fit=crop')] bg-cover bg-center transition-transform duration-700 group-hover:scale-105"></div>
+            </div>
+            
+            {/* Gradient Overlay for bottom text */}
+            <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#0f172a] to-transparent"></div>
+
+            {/* Live Feed Badge */}
+            <div className="absolute top-4 left-4 flex items-center gap-1.5 px-2 py-1 bg-[#dc2626] rounded text-white text-[10px] font-bold tracking-widest uppercase">
+              <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div>
+              LIVE FEED: FLOOR A2
+            </div>
+
+            {/* Bottom Status Content */}
+            <div className="absolute bottom-6 left-6 right-6">
+              <p className="text-[15px] font-medium text-white mb-3">Machine Stability: High</p>
+              
+              <div className="flex gap-2">
+                <div className="h-1 flex-1 bg-[#c2410c] rounded-full"></div>
+                <div className="h-1 flex-1 bg-[#c2410c] rounded-full"></div>
+                <div className="h-1 flex-1 bg-[#c2410c] rounded-full"></div>
+                <div className="h-1 flex-1 bg-white/20 rounded-full"></div>
+                <div className="h-1 flex-1 bg-white/20 rounded-full"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   )
