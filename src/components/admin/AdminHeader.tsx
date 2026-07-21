@@ -34,7 +34,7 @@ export default function AdminHeader({ title, user }: Props) {
               {/* Fallback avatar */}
               <span className="text-xs font-bold text-zinc-500">{user?.name?.charAt(0)}</span>
             </div>
-            <span className="text-sm font-medium text-zinc-700">{user?.name || "Bambang S."}</span>
+            <span className="text-sm font-medium text-zinc-700">{user?.name || "Admin"}</span>
           </div>
         </div>
       </div>

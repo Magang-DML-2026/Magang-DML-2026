@@ -4,7 +4,7 @@ import type { NextRequest } from "next/server";
 const SESSION_COOKIE_NAME = "session_token";
 
 // Routes that require authentication
-const protectedRoutes = ["/dashboard"];
+const protectedRoutes = ["/dashboard", "/admin"];
 
 // Routes that should redirect to dashboard if already logged in
 const authRoutes = ["/login", "/register"];
@@ -23,7 +23,7 @@ export function proxy(request: NextRequest) {
   // If trying to access auth routes while already logged in, redirect to dashboard
   if (authRoutes.some((route) => pathname.startsWith(route))) {
     if (sessionToken) {
-      return NextResponse.redirect(new URL("/dashboard", request.url));
+      return NextResponse.redirect(new URL("/", request.url));
     }
   }
 
@@ -31,5 +31,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/login", "/register"],
+  matcher: ["/dashboard/:path*", "/admin/:path*", "/login", "/register"],
 };

@@ -2,10 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTransition } from "react";
 import { LayoutDashboard, FileText, Package, ShoppingCart, Ticket, Settings, HelpCircle, LogOut } from "lucide-react";
+import { logoutAction } from "@/app/actions/auth";
 
 export default function AdminSidebar() {
   const pathname = usePathname();
+  const [isPending, startTransition] = useTransition();
 
   const menuItems = [
     { name: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
@@ -55,12 +58,14 @@ export default function AdminSidebar() {
             </Link>
           </li>
           <li>
-            <form action="/api/logout" method="POST">
-              <button type="submit" className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-zinc-600 hover:text-red-600 hover:bg-red-50 transition-colors">
-                <LogOut className="w-4 h-4" />
-                Sign Out
-              </button>
-            </form>
+            <button
+              onClick={() => startTransition(() => logoutAction())}
+              disabled={isPending}
+              className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-zinc-600 hover:text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
+            >
+              <LogOut className="w-4 h-4" />
+              {isPending ? "Signing out..." : "Sign Out"}
+            </button>
           </li>
         </ul>
       </div>
