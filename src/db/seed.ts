@@ -108,9 +108,10 @@ async function seed() {
   const hashedPassword = await hashPassword("password123");
   const USERS = [
     { name: "Bambang S.", email: "admin@dml.com", password: hashedPassword, role: "admin" },
-    { name: "Indo Rubber Corp", email: "procurement@indorubber.com", password: hashedPassword, role: "user" },
+    { name: "Indo Rubber Corp", email: "procurement@indorubber.com", password: hashedPassword, role: "b2b", b2bStatus: "approved", companyName: "Indo Rubber Corp" },
     { name: "Adi Wijaya", email: "adi@retail.com", password: hashedPassword, role: "user" },
     { name: "Tunas Logistik PT", email: "supply@tunaslogistik.com", password: hashedPassword, role: "user" },
+    { name: "Customer B2C", email: "b2c@dml.com", password: hashedPassword, role: "user" },
   ];
   const newUsers = await db.insert(users).values(USERS).returning();
   console.log("Users seeded:", newUsers.length);

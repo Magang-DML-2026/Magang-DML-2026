@@ -11,7 +11,7 @@ export default function DashboardClientWrapper({
   user 
 }: { 
   children: React.ReactNode;
-  user: { name: string; email: string; } | null;
+  user: { name: string; email: string; role?: string; companyName?: string; } | null;
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
@@ -46,14 +46,14 @@ export default function DashboardClientWrapper({
             </div>
             <div>
               <p className="text-sm font-bold text-zinc-900 leading-tight">
-                Customer Portal
+                {user?.role === "b2b" ? "Partner Portal" : "Customer Portal"}
               </p>
-              <p className="text-xs text-zinc-500">PT Duta Mitra Luhur</p>
+              <p className="text-xs text-zinc-500">{user?.role === "b2b" && user?.companyName ? user.companyName : "PT Duta Mitra Luhur"}</p>
             </div>
           </div>
 
           {/* Navigation Links */}
-          <SidebarNav />
+          <SidebarNav role={user?.role || "user"} />
         </aside>
 
         {/* Main Content Area */}

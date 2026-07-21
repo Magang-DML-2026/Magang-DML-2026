@@ -12,10 +12,8 @@ import { FilterModal } from "@/components/admin/orders/FilterModal";
 import { ApprovalModal } from "@/components/admin/orders/ApprovalModal";
 import { ExportModal } from "@/components/admin/orders/ExportModal";
 import { RejectModal } from "@/components/admin/orders/RejectModal";
-import { OrderListClient } from "@/components/admin/orders/OrderListClient";
-import { getOrders } from "./actions";
 
-export default function OrdersPage() {
+export default function OrderListClient() {
   const [selectedChatOrder, setSelectedChatOrder] = useState<B2BOrder | null>(null);
   const [selectedSPKOrder, setSelectedSPKOrder] = useState<B2BOrder | null>(null);
   const [selectedApprovalOrder, setSelectedApprovalOrder] = useState<B2BOrder | null>(null);

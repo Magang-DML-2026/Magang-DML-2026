@@ -239,7 +239,7 @@ function FeaturedCard({ product, reversed }: { product: Product; reversed?: bool
           )}
         </div>
         <div className="flex items-center justify-between mt-8 pt-4 border-t border-zinc-100">
-          <span className="font-medium text-black">Rp {product.price.toLocaleString("id-ID")}</span>
+          <span className="font-medium text-black">Rp {Number(product.price).toLocaleString("id-ID")}</span>
           {product.id === 1 ? (
             <button className="w-10 h-10 bg-black text-white rounded-md flex items-center justify-center hover:bg-zinc-800 transition-colors">
               <ShoppingCart className="w-4 h-4" />
@@ -286,7 +286,7 @@ function StandardCard({ product }: { product: Product }) {
           <p className="text-xs text-zinc-500 leading-relaxed">{product.description}</p>
         </div>
         <div className="flex items-center justify-between mt-6 pt-4 border-t border-zinc-100">
-          <span className="font-bold text-sm text-black">Rp {product.price.toLocaleString("id-ID")}</span>
+          <span className="font-bold text-sm text-black">Rp {Number(product.price).toLocaleString("id-ID")}</span>
           <button className="text-zinc-400 hover:text-black transition-colors">
             <PlusCircle className="w-5 h-5" />
           </button>

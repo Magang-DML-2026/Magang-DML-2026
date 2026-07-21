@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Search, LogOut, ShoppingCart, Menu, X } from "lucide-react";
+import { Search, LogOut, ShoppingCart, Menu, X, Bell, Settings } from "lucide-react";
 
 type NavbarProps = {
   activeTab?: "profile" | "products" | "services" | "contact" | "none" | "kategori" | "proyek" | "tentang-kami";
@@ -14,6 +14,8 @@ type NavbarProps = {
   user?: {
     name: string;
     email: string;
+    role?: string;
+    companyName?: string;
   } | null;
 };
 
@@ -63,14 +65,22 @@ export default function Navbar({
               <Menu className="w-5 h-5" />
             </button>
           )}
-          <Link href="/" className="text-xl font-bold tracking-tight text-black whitespace-nowrap">
-            Duta Mitra Luhur
-          </Link>
+          {user?.role === "b2b" && dashboardMode ? (
+            <div className="flex items-center gap-3 text-sm font-medium">
+              <span className="text-zinc-900 font-bold">Industrial Portal</span>
+              <span className="text-zinc-300">|</span>
+              <span className="text-zinc-500">Dashboard Mitra B2B</span>
+            </div>
+          ) : (
+            <Link href="/" className="text-xl font-bold tracking-tight text-black whitespace-nowrap">
+              Duta Mitra Luhur
+            </Link>
+          )}
         </div>
 
         {/* Desktop Links */}
         <div className="hidden md:flex items-center gap-10 text-sm font-medium ml-8">
-          {dashboardMode ? (
+          {user?.role === "b2b" && dashboardMode ? null : dashboardMode ? (
             <>
               <Link
                 href="/dashboard/katalog"
@@ -148,8 +158,8 @@ export default function Navbar({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Search catalog..."
-                className="pl-9 pr-4 py-2 bg-zinc-100 rounded-md text-sm outline-none focus:ring-2 focus:ring-[#f05c35]/50 transition-all w-[200px] focus:w-[260px]"
+                placeholder={user?.role === "b2b" ? "Search orders, docs..." : "Search catalog..."}
+                className={`pl-9 pr-4 py-2 bg-zinc-100 rounded-md text-sm outline-none focus:ring-2 focus:ring-[#f05c35]/50 transition-all ${user?.role === "b2b" ? "w-[260px] focus:w-[300px]" : "w-[200px] focus:w-[260px]"}`}
               />
               {searchQuery && (
                 <button
@@ -163,21 +173,43 @@ export default function Navbar({
           )}
           {user ? (
             <div className="flex items-center gap-4">
-              {dashboardMode && (
+              {user?.role === "b2b" && dashboardMode ? (
+                <>
+                  <button className="relative p-2 text-zinc-600 hover:bg-zinc-100 rounded-full transition-colors">
+                    <Bell className="w-5 h-5" />
+                    <span className="absolute top-1.5 right-2 w-2 h-2 bg-red-500 rounded-full"></span>
+                  </button>
+                  <button className="p-2 text-zinc-600 hover:bg-zinc-100 rounded-full transition-colors mr-2">
+                    <Settings className="w-5 h-5" />
+                  </button>
+                </>
+              ) : dashboardMode && (
                 <Link href="/dashboard/cart" className="text-zinc-600 hover:text-black transition-colors">
                   <ShoppingCart className="w-5 h-5" />
                 </Link>
               )}
+              
               <Link
                 href="/dashboard"
-                className="flex items-center gap-2 hover:opacity-80 transition-opacity ml-2"
+                className="flex items-center gap-3 hover:opacity-80 transition-opacity pl-4 border-l border-zinc-200"
               >
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#f05c35] to-[#d94a28] flex items-center justify-center text-white font-bold text-xs">
-                  {user.name.charAt(0).toUpperCase()}
+                <div className="hidden sm:flex flex-col items-end">
+                  <span className="text-[13px] font-bold text-zinc-900 leading-tight">
+                    {user.name}
+                  </span>
+                  {user?.role === "b2b" && (
+                    <span className="text-[11px] text-zinc-500 leading-tight">
+                      Production Manager
+                    </span>
+                  )}
                 </div>
-                <span className="text-sm font-medium text-zinc-700 hidden sm:inline-block">
-                  {user.name}
-                </span>
+                {user?.role === "b2b" ? (
+                  <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop" alt="Profile" className="w-9 h-9 rounded-full object-cover border border-zinc-200" />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#f05c35] to-[#d94a28] flex items-center justify-center text-white font-bold text-xs">
+                    {user.name.charAt(0).toUpperCase()}
+                  </div>
+                )}
               </Link>
               <form action="/api/logout" method="POST">
                 <button

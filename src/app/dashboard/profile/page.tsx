@@ -17,6 +17,8 @@ export default async function ProfilePage() {
       email: users.email,
       phone: users.phone,
       role: users.role,
+      companyName: users.companyName,
+      b2bStatus: users.b2bStatus,
     })
     .from(users)
     .where(eq(users.id, session.userId))
