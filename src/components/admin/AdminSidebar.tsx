@@ -13,10 +13,10 @@ export default function AdminSidebar() {
   const menuItems = [
     { name: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
     { name: "CMS Content", href: "#", icon: FileText },
-    { name: "Products", href: "#", icon: Package },
-    { name: "Orders", href: "#", icon: ShoppingCart },
+    { name: "Products", href: "/admin/products", icon: Package },
+    { name: "Orders", href: "/admin/orders", icon: ShoppingCart },
     { name: "Tickets", href: "#", icon: Ticket },
-    { name: "Settings", href: "#", icon: Settings },
+    { name: "Settings", href: "/admin/settings", icon: Settings },
   ];
 
   return (
@@ -29,7 +29,7 @@ export default function AdminSidebar() {
       <nav className="flex-1 mt-4">
         <ul className="flex flex-col gap-1 px-4">
           {menuItems.map((item) => {
-            const isActive = pathname === item.href;
+            const isActive = pathname.startsWith(item.href) && item.href !== "#";
             return (
               <li key={item.name}>
                 <Link
