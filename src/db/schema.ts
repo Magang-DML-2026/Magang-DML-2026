@@ -8,6 +8,11 @@ export const users = pgTable("users", {
   password: text("password").notNull(),
   phone: varchar("phone", { length: 30 }),
   role: varchar("role", { length: 50 }).notNull().default("user"),
+  companyName: varchar("company_name", { length: 255 }),
+  b2bStatus: varchar("b2b_status", { length: 20 }).notNull().default("none"), // none, pending, approved, rejected
+  nibDoc: varchar("nib_doc", { length: 500 }),
+  npwpDoc: varchar("npwp_doc", { length: 500 }),
+  ktpDoc: varchar("ktp_doc", { length: 500 }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

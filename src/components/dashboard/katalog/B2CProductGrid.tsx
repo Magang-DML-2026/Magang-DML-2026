@@ -91,7 +91,7 @@ export default async function B2CProductGrid() {
       
       {/* Pagination at the bottom */}
       <div className="mt-8 mb-4 flex justify-center">
-        <Pagination />
+        <Pagination currentPage={1} totalPages={1} />
       </div>
     </div>
   );

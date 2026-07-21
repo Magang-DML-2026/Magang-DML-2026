@@ -12,12 +12,23 @@ import {
   ShoppingCart,
   ShoppingBag,
   LogOut,
+  Wrench,
+  ShieldCheck,
+  PackageSearch
 } from "lucide-react";
 
-export default function SidebarNav() {
+export default function SidebarNav({ role = "user" }: { role?: string }) {
   const pathname = usePathname();
 
-  const links = [
+  const links = role === "b2b" ? [
+    { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+    { name: "Custom Orders", href: "/dashboard/transactions", icon: PackageSearch },
+    { name: "Invoices", href: "/dashboard/invoices", icon: Receipt },
+    { name: "Production", href: "/dashboard/production", icon: Wrench },
+    { name: "Quality", href: "/dashboard/quality", icon: ShieldCheck },
+    { name: "Setting", href: "/dashboard/profile", icon: Settings },
+    { name: "Support", href: "/dashboard/support", icon: HelpCircle },
+  ] : [
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
     { name: "Katalog", href: "/dashboard/katalog", icon: ShoppingBag },
     { name: "Keranjang", href: "/dashboard/cart", icon: ShoppingCart },

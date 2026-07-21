@@ -1,14 +1,19 @@
 "use client";
 
-import { useState } from "react";
-import { User, Bell, Lock, CheckCircle } from "lucide-react";
+import { useState, useActionState } from "react";
+import { User, Bell, Lock, CheckCircle, FileText, UploadCloud, AlertCircle, Building2 } from "lucide-react";
 import ChangePasswordForm from "@/components/dashboard/ChangePasswordForm";
+import { submitB2BDocuments, type B2BState } from "@/app/actions/b2b";
 
 export default function SettingsClient({ user }: { user: any }) {
   const [emailNotif, setEmailNotif] = useState(true);
   const [pushNotif, setPushNotif] = useState(true);
   const [smsNotif, setSmsNotif] = useState(false);
   const [isB2b, setIsB2b] = useState(user.role === "b2b");
+  const [b2bState, b2bAction, b2bPending] = useActionState<B2BState, FormData>(
+    submitB2BDocuments,
+    null
+  );
 
   const [name, setName] = useState(user.name);
   const [email, setEmail] = useState(user.email);
@@ -90,23 +95,98 @@ export default function SettingsClient({ user }: { user: any }) {
               </div>
             </div>
 
-            <div className="flex items-center justify-between mb-8 bg-zinc-50 p-4 rounded-lg border border-zinc-100">
-              <div>
-                <h4 className="text-[13px] font-bold text-zinc-900">Ubah Customer Bisnis</h4>
-                <p className="text-[11px] text-zinc-500">Upload dokumen untuk merubah akun menjadi B2B.</p>
+            {/* B2B Upgrade Section */}
+            <div className="mb-8 mt-8 bg-zinc-50 p-6 rounded-lg border border-zinc-200">
+              <div className="flex items-center gap-3 mb-4">
+                <Building2 className="w-5 h-5 text-zinc-700" />
+                <h4 className="text-[14px] font-bold text-zinc-900">Ubah Akun B2B (Customer Bisnis)</h4>
               </div>
-              <button 
-                onClick={() => setIsB2b(!isB2b)}
-                className={`w-10 h-5 rounded-full relative transition-colors ${isB2b ? 'bg-[#cc4224]' : 'bg-zinc-200'}`}
-              >
-                <span className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform ${isB2b ? 'translate-x-5' : 'translate-x-0'}`}></span>
-              </button>
-            </div>
 
-            <div className="flex justify-end">
-              <button className="px-6 py-2.5 bg-[#cc4224] text-white text-[12px] font-bold rounded-md hover:bg-[#b0351b] transition-colors shadow-sm">
-                Save Profile
-              </button>
+              {user.b2bStatus === "approved" || isB2b ? (
+                <div className="p-4 bg-emerald-50 border border-emerald-100 rounded-md flex items-center gap-3 text-emerald-700">
+                  <CheckCircle className="w-5 h-5" />
+                  <div>
+                    <p className="text-[13px] font-bold">Akun B2B Aktif</p>
+                    <p className="text-[11px]">Anda memiliki akses penuh untuk pembelian grosir dan pengajuan invoice termin.</p>
+                  </div>
+                </div>
+              ) : user.b2bStatus === "pending" || b2bState?.success ? (
+                <div className="p-4 bg-orange-50 border border-orange-100 rounded-md flex items-center gap-3 text-orange-700">
+                  <AlertCircle className="w-5 h-5" />
+                  <div>
+                    <p className="text-[13px] font-bold">Menunggu Persetujuan Admin</p>
+                    <p className="text-[11px]">Dokumen pengajuan B2B Anda sedang direview oleh tim kami. Mohon ditunggu.</p>
+                  </div>
+                </div>
+              ) : (
+                <form action={b2bAction} className="space-y-5">
+                  <p className="text-[12px] text-zinc-600 mb-2">
+                    Upload dokumen pendukung untuk mengajukan perubahan akun menjadi B2B (Mendapatkan harga khusus dan limit pembayaran).
+                  </p>
+
+                  {b2bState?.error && (
+                    <div className="p-3 bg-red-50 text-red-600 text-xs rounded-md border border-red-100">
+                      {b2bState.error}
+                    </div>
+                  )}
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-zinc-700 mb-1.5">Nama Perusahaan PT/CV</label>
+                    <input 
+                      type="text" 
+                      name="companyName"
+                      required
+                      placeholder="Contoh: PT Sumber Rejeki"
+                      className="w-full px-4 py-2.5 bg-white border border-zinc-200 rounded-md text-[13px] text-zinc-900 focus:outline-none focus:border-[#cc4224]"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* NIB */}
+                    <div>
+                      <label className="block text-[11px] font-bold text-zinc-700 mb-1.5">NIB (PDF/IMG)</label>
+                      <div className="relative">
+                        <input type="file" name="nibDoc" accept=".pdf,image/*" required className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                        <div className="w-full px-3 py-2 bg-white border border-zinc-200 rounded-md text-[11px] text-zinc-500 flex items-center justify-center gap-2 hover:bg-zinc-50 transition-colors">
+                          <UploadCloud className="w-4 h-4" /> Upload NIB
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* NPWP */}
+                    <div>
+                      <label className="block text-[11px] font-bold text-zinc-700 mb-1.5">NPWP Perusahaan</label>
+                      <div className="relative">
+                        <input type="file" name="npwpDoc" accept=".pdf,image/*" required className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                        <div className="w-full px-3 py-2 bg-white border border-zinc-200 rounded-md text-[11px] text-zinc-500 flex items-center justify-center gap-2 hover:bg-zinc-50 transition-colors">
+                          <UploadCloud className="w-4 h-4" /> Upload NPWP
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* KTP */}
+                    <div>
+                      <label className="block text-[11px] font-bold text-zinc-700 mb-1.5">KTP Direktur/PIC</label>
+                      <div className="relative">
+                        <input type="file" name="ktpDoc" accept=".pdf,image/*" required className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                        <div className="w-full px-3 py-2 bg-white border border-zinc-200 rounded-md text-[11px] text-zinc-500 flex items-center justify-center gap-2 hover:bg-zinc-50 transition-colors">
+                          <UploadCloud className="w-4 h-4" /> Upload KTP
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end pt-2">
+                    <button 
+                      type="submit"
+                      disabled={b2bPending}
+                      className="px-5 py-2.5 bg-zinc-900 text-white text-[12px] font-bold rounded-md hover:bg-zinc-800 transition-colors disabled:opacity-50"
+                    >
+                      {b2bPending ? "Mengajukan..." : "Ajukan Verifikasi B2B"}
+                    </button>
+                  </div>
+                </form>
+              )}
             </div>
           </div>
 

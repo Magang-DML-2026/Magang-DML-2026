@@ -5,6 +5,7 @@ import AdminHeader from "@/components/admin/AdminHeader";
 import { B2BOrdersTable, type B2BOrder } from "@/components/admin/orders/B2BOrdersTable";
 import { B2CReceiptValidation } from "@/components/admin/orders/B2CReceiptValidation";
 import type { Receipt } from "@/components/admin/orders/receiptData";
+import OrderListClient from "@/components/admin/orders/OrderListClient";
 import { OrderStatsCards } from "@/components/admin/orders/OrderStatsCards";
 import { ChatModal } from "@/components/admin/orders/ChatModal";
 import { SPKModal } from "@/components/admin/orders/SPKModal";
